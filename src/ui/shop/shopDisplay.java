@@ -83,10 +83,7 @@ public class shopDisplay {
             Char.setCharHP(Char.getCharHP() + 50);
             Char.setCharCoin(Char.getCharCoin() - 30);
         }else{
-            Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
-            alert.setTitle("COINS");
-            alert.setContentText("NOT ENOUGH COINS");
-            alert.showAndWait();
+            alert();
         }
         refresh.refreshCharStat();
     }
@@ -96,10 +93,7 @@ public class shopDisplay {
             Char.setCharHP(Char.getCharHP() + 50);
             Char.setCharCoin(Char.getCharCoin() - 50);
         }else{
-            Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
-            alert.setTitle("COINS");
-            alert.setContentText("NOT ENOUGH COINS");
-            alert.showAndWait();
+            alert();
         }
         refresh.refreshCharStat();
     }
@@ -113,10 +107,7 @@ public class shopDisplay {
             }
             Char.setCharCoin(Char.getCharCoin() - 70);
         }else{
-            Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
-            alert.setTitle("COINS");
-            alert.setContentText("NOT ENOUGH COINS");
-            alert.showAndWait();
+            alert();
         }
         refresh.refreshCharStat();
     }
@@ -132,6 +123,13 @@ public class shopDisplay {
             Char.setCharAtk(baseAtk);
             refresh.refreshCharStat();
         }
+    }
+
+    public void alert(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
+        alert.setTitle("Not Enough Coins");
+        alert.setContentText("NOT ENOUGH COINS");
+        alert.showAndWait();
     }
 }
 
