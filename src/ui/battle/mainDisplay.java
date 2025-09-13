@@ -156,8 +156,13 @@ public class mainDisplay extends Application implements Refreshable {
             refreshEntStat();
         }
         else {
-            refreshEntStat();
-            refreshCharStat();
+            statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
+            nameEnt.setText("...");statEntHP.setText("ATTACKING"); statEntATK.setText("...");
+            pause.setOnFinished(e->{
+                refreshEntStat();
+                refreshCharStat();
+            });
+            pause.play();
         }
     }
 
