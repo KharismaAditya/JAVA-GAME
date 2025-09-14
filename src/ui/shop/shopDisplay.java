@@ -1,11 +1,9 @@
 package ui.shop;
 
-import javafx.application.Application;
 import javafx.scene.control.Alert;
 import method.Refreshable;
 import model.*;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,7 +11,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
-import ui.battle.mainDisplay;
 
 public class shopDisplay {
     private boolean potionActive = false;

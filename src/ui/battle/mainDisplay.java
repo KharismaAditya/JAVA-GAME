@@ -1,6 +1,5 @@
 package ui.battle;
 import javafx.animation.PauseTransition;
-import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -188,9 +187,12 @@ public class mainDisplay extends Application implements Refreshable {
         int angka2 = rand.nextInt(50);
         int answerGuess = angka1 + angka2;
 
-        VBox answerDisplay = new VBox(); answerDisplay.setStyle("-fx-background-color: #D9D9D9");
+        VBox answerDisplay = new VBox();
+        answerDisplay.setStyle("-fx-background-color: #D9D9D9");
         answerDisplay.setPadding(new Insets(30, 10, 30, 10));
-        answerDisplay.setAlignment(Pos.CENTER); answerDisplay.setMinSize(480, 200); answerDisplay.setSpacing(5);
+        answerDisplay.setAlignment(Pos.CENTER);
+        answerDisplay.setMinSize(480, 200);
+        answerDisplay.setSpacing(5);
 
         VBox defenseguess = comp.defenseGuess(angka1, angka2);
         Button answerBut = comp.row2("ANSWER");
@@ -204,13 +206,23 @@ public class mainDisplay extends Application implements Refreshable {
                 if(answer == answerGuess){
                     defenseRNG.setText("YOU WIN");
                     currentEnt.setEntHP(currentEnt.getEntHP() - Mainchar.getCharAtk());
+
                     if(currentEnt.getEntHP() <= 0){
-                        currentEnt.setEntHP(0); coinWin();
-                        refreshEntStat();
-                    }
-                    else {
+                        currentEnt.setEntHP(0);
+                        coinWin();
+                        nameEnt.setText("...");statEntHP.setText("STAGE CLEAR");statEntATK.setText("...");
+                        pause.setOnFinished(e2 -> {
+                            defenseRNG.setVisible(false);
+                            currentenemyindex++;
+                            refreshEntStat();
+                            refreshCharStat();
+                        });
+                        pause.play();
+                    } else {
                         refreshEntStat();
                         refreshCharStat();
+                        pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                        pause.play();
                     }
                 } else {
                     defenseRNG.setText("YOU LOSE");
@@ -218,13 +230,16 @@ public class mainDisplay extends Application implements Refreshable {
                     if (newHP < 0) newHP = 0;
                     Mainchar.setCharHP(newHP);
                     refreshCharStat();
+
+                    pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                    pause.play();
                 }
             } else {
                 defenseRNG.setText("Please enter a number!");
+                pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                pause.play();
             }
-            pause.setOnFinished(e2->{defenseRNG.setVisible(false);});
-            pause.play();
-            
+
             buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
             displayPane.getChildren().clear();
             displayPane.getChildren().addAll(display,winOrLose);
