@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
+import ui.skills.skillsDisplay;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -23,8 +24,9 @@ import java.util.Random;
 public class mainDisplay extends Application implements Refreshable {
     mainComp comp = new mainComp();
     shopDisplay shop = new shopDisplay(this);
+    skillsDisplay skills = new skillsDisplay(this);
 
-    player Mainchar = new player(100, 30, 100);
+    player Mainchar = new player(100, 30, 50);
     int currentenemyindex;
     entityList enmList = new entityList();
 
@@ -58,6 +60,8 @@ public class mainDisplay extends Application implements Refreshable {
 
     @Override
     public void start(Stage stage) throws Exception {
+        entity currentEnt = arrEnt.get(count());
+
         HBox mainroot = new HBox();
         VBox root = new VBox();
         root.setAlignment(Pos.TOP_CENTER);
@@ -109,6 +113,7 @@ public class mainDisplay extends Application implements Refreshable {
         row1col2.setOnMouseClicked(e -> {defenseScene();});
         row1col3.setOnMouseClicked(e -> {shop.SHOP(Mainchar);});
         row2col1.setOnMouseClicked(e -> {stage.close();});
+        row2col2.setOnMouseClicked(e -> skills.SKILLS(Mainchar,currentEnt));
 
         stage.setResizable(false);
         stage.setScene(scene);
@@ -117,7 +122,12 @@ public class mainDisplay extends Application implements Refreshable {
 
     public int count(){
      if(arrEnt.get(currentenemyindex).getEntHP()<=0){
-         currentenemyindex++;
+         nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
+         pause.setOnFinished(e->{
+             currentenemyindex++;
+             refreshEntStat();
+         });
+         pause.play();
      }
      return currentenemyindex;
     }
@@ -135,6 +145,7 @@ public class mainDisplay extends Application implements Refreshable {
         statCoin.setText("Coin: " + Mainchar.getCharCoin());
     }
 
+    @Override
     public void refreshEntStat(){
         entity currentEnt = arrEnt.get(count());
         nameEnt.setText(currentEnt.getEntName());
