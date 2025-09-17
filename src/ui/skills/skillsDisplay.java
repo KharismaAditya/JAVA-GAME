@@ -1,7 +1,8 @@
 package ui.skills;
 
+import com.sun.tools.javac.Main;
 import javafx.scene.control.Alert;
-import method.Refreshable;
+import method.*;
 import model.*;
 
 import javafx.geometry.Insets;
@@ -13,12 +14,16 @@ import javafx.scene.control.Button;
 
 public class skillsDisplay {
     Refreshable refresh;
-    public skillsDisplay(Refreshable refresh) {this.refresh = refresh;}
+    ActivePane activePane;
+    public skillsDisplay(Refreshable refresh, ActivePane activePane) {
+        this.refresh = refresh;
+        this.activePane = activePane;
+    }
     skillsComp comp = new skillsComp();
 
     Button skill1 = comp.buyButton("ARMAGEDDON\n100 HP 120 COIN");
     Button skill2 = comp.buyButton("SONG OF THE SEA\n200 COIN");
-    Button skill3 = comp.buyButton("CALL OF DEATH\n200 HP 100 COIN");
+    Button skill3 = comp.buyButton("CALL OF DEATH\n300 COIN and Something");
 
     Button exit = comp.ExitButton();
 
@@ -42,6 +47,7 @@ public class skillsDisplay {
     skill3.setOnAction(e -> {skill3Effect(MainChar, enemy);});
     exit.setOnMouseClicked(e->{
         stage.close();
+        activePane.setActivePane(false);
     });
 
      root.getChildren().addAll(upperRoot,lowerRoot);
@@ -71,8 +77,10 @@ public class skillsDisplay {
     }
 
     public void skill3Effect(player Mainchar, entity enemy){
-        if(Mainchar.getCharCoin() >= 100 && Mainchar.getCharHP() >= 200){
-            Mainchar.setCharHP(Mainchar.getCharHP() - 200); Mainchar.setCharCoin(Mainchar.getCharCoin() - 100);
+        double HPCost = (double) Mainchar.getCharHP() * 0.1;
+
+        if(Mainchar.getCharCoin() >= 300){
+            Mainchar.setCharHP((int) HPCost); Mainchar.setCharCoin(Mainchar.getCharCoin() - 300);
             enemy.setEntHP(0);
         }else {
             alert();

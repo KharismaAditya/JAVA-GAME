@@ -1,7 +1,7 @@
 package ui.shop;
 
 import javafx.scene.control.Alert;
-import method.Refreshable;
+import method.*;
 import model.*;
 
 import javafx.geometry.Insets;
@@ -19,8 +19,10 @@ public class shopDisplay {
 
     shopComp comp = new shopComp();
     Refreshable refresh;
+    ActivePane activePane;
 
-    public shopDisplay(Refreshable refresh) {
+    public shopDisplay(Refreshable refresh, ActivePane activePane) {
+        this.activePane = activePane;
         this.refresh = refresh;
     }
 
@@ -68,6 +70,7 @@ public class shopDisplay {
         buy3.setOnMouseClicked(e -> {magicPotionEffect(mainchar);});
         exit.setOnMouseClicked(e -> {
             stage.close();
+            activePane.setActivePane(false);
         });
 
         root.getChildren().addAll(upSection, downSection);

@@ -3,7 +3,7 @@ import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import method.Refreshable;
+import method.*;
 import model.*;
 import ui.shop.*;
 
@@ -20,10 +20,21 @@ import ui.skills.skillsDisplay;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class mainDisplay extends Application implements Refreshable {
+public class mainDisplay extends Application implements Refreshable , ActivePane{
     mainComp comp = new mainComp();
-    shopDisplay shop = new shopDisplay(this);
-    skillsDisplay skills = new skillsDisplay(this);
+    shopDisplay shop = new shopDisplay(this, this);
+    skillsDisplay skills = new skillsDisplay(this, this);
+
+
+    boolean activePane = false;
+
+    @Override
+    public boolean getActivePane() {return activePane;}
+    public void setActivePane(boolean activePane) {this.activePane = activePane;}
+
+    private boolean enemyAttack = false;
+    public boolean isEnemyAttack() {return enemyAttack;}
+    public void setEnemyAttack(boolean enemyAttack) {this.enemyAttack = enemyAttack;}
 
     player Mainchar = new player(100, 30, 50);
     int currentenemyindex;
@@ -31,7 +42,6 @@ public class mainDisplay extends Application implements Refreshable {
 
     ArrayList<entity> arrEnt = enmList.entList();
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
-    int count = 5;
 
     HBox display = new HBox();
     HBox winOrLose = new HBox();
@@ -110,14 +120,47 @@ public class mainDisplay extends Application implements Refreshable {
 
         row1col1.setOnMouseClicked(e -> {attackScene();});
         row1col2.setOnMouseClicked(e -> {defenseScene();});
-        row1col3.setOnMouseClicked(e -> {shop.SHOP(Mainchar);});
+        row1col3.setOnMouseClicked(e -> {
+            if(!getActivePane()){
+                setActivePane(true);
+                shop.SHOP(Mainchar);
+            }
+        });
         row2col1.setOnMouseClicked(e -> {stage.close();});
-        row2col2.setOnMouseClicked(e -> skills.SKILLS(Mainchar,currentEnt));
+        row2col2.setOnMouseClicked(e -> {
+            if(!getActivePane()){
+                setActivePane(true);
+                skills.SKILLS(Mainchar,currentEnt);
+            }
+        });
 
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
+
+    public void entAttackScene(entity currentEnt) {
+        if (isEnemyAttack()) {
+            Mainchar.setCharHP(Mainchar.getCharHP() - currentEnt.getEntAtk());
+            refreshCharStat();
+
+            statHP.setText("");
+            statATK.setText("ENEMY ATTACKING");
+            statCoin.setText("");
+            nameEnt.setText(currentEnt.getEntName());
+            statEntHP.setText("Enemy HP: " + currentEnt.getEntHP());
+            statEntATK.setText("Enemy ATK: " + currentEnt.getEntAtk());
+
+            pause.setOnFinished(e -> {
+                refreshCharStat();
+                refreshEntStat();
+                statATK.setText("ATK: " + Mainchar.getCharAtk());
+            });
+            pause.play();
+            setEnemyAttack(false);
+        }
+    }
+
 
     public int count(){
      if(arrEnt.get(currentenemyindex).getEntHP()<=0){
@@ -155,7 +198,7 @@ public class mainDisplay extends Application implements Refreshable {
     public void attackScene(){
         entity currentEnt = arrEnt.get(count());
         currentEnt.setEntHP(currentEnt.getEntHP() - Mainchar.getCharAtk());
-        Mainchar.setCharHP(Mainchar.getCharHP() - currentEnt.getEntAtk());
+        setEnemyAttack(true);
 
         if (shop.isPotionActive()) {
             shop.increaseAttackCount(Mainchar);
@@ -171,6 +214,7 @@ public class mainDisplay extends Application implements Refreshable {
             pause.setOnFinished(e->{
                 refreshEntStat();
                 refreshCharStat();
+                entAttackScene(currentEnt);
             });
             pause.play();
         }
@@ -226,12 +270,13 @@ public class mainDisplay extends Application implements Refreshable {
                     }
                 } else {
                     defenseRNG.setText("YOU LOSE");
-                    int newHP = Mainchar.getCharHP() - currentEnt.getEntAtk();
-                    if (newHP < 0) newHP = 0;
-                    Mainchar.setCharHP(newHP);
+                    setEnemyAttack(true);
                     refreshCharStat();
 
-                    pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                    pause.setOnFinished(e2 -> {
+                        defenseRNG.setVisible(false);
+                        entAttackScene(currentEnt);
+                    });
                     pause.play();
                 }
             } else {
