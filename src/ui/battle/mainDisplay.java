@@ -24,6 +24,7 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
     mainComp comp = new mainComp();
     shopDisplay shop = new shopDisplay(this, this);
     skillsDisplay skills = new skillsDisplay(this, this);
+    bossSkills bossSkills = new bossSkills();
 
 
     boolean activePane = false;
@@ -134,6 +135,7 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
             }
         });
 
+
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
@@ -155,10 +157,34 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
                 refreshCharStat();
                 refreshEntStat();
                 statATK.setText("ATK: " + Mainchar.getCharAtk());
+                entSkillScene(currentEnt);
             });
             pause.play();
             setEnemyAttack(false);
         }
+    }
+
+    public void entSkillScene(entity currentEnt) {
+        Random rand = new Random();
+        int skillCount = rand.nextInt(5);
+
+        if (skillCount == 5) {
+            bossSkills.skillList(this, Mainchar, currentEnt);
+            statHP.setText("");
+            statATK.setText(bossSkills.bossSkillName(count()));
+            statCoin.setText("");
+            nameEnt.setText(currentEnt.getEntName());
+            statEntHP.setText("Enemy HP: " + currentEnt.getEntHP());
+            statEntATK.setText("Enemy ATK: " + currentEnt.getEntAtk());
+
+            pause.setOnFinished(e -> {
+                refreshCharStat();
+                refreshEntStat();
+                statATK.setText("ATK: " + Mainchar.getCharAtk());
+            });
+            pause.play();
+        }
+
     }
 
 
@@ -285,6 +311,7 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
                 pause.play();
             }
 
+            entSkillScene(currentEnt);
             buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
             displayPane.getChildren().clear();
             displayPane.getChildren().addAll(display,winOrLose);
