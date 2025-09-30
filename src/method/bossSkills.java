@@ -7,29 +7,13 @@ public class bossSkills {
 
     public void skillList(mainDisplay display, player player, entity boss) {
         switch (display.count()){
-            case 0:
-                ZylnorSkills(player, boss);
-                break;
-            case 1:
-                EryndraSkills(player, boss);
-                break;
-             case 2:
-                 ThraxxussSkills(player, boss);
-                 break;
-             case 3:
-                 KaelithSkills(player, boss);
-                 break;
-             case 4:
-                 VrakhtarSkills(player, boss);
-                 break;
-             case 5:
-                 ATGOMASkills(player, boss);
-                 break;
-             case 6:
-                 DiandraSkills(player, boss);
-                 break;
-
-
+            case 0:ZylnorSkills(player);break;
+            case 1:EryndraSkills(boss);break;
+            case 2:ThraxxussSkills(boss);break;
+            case 3:KaelithSkills(boss);break;
+            case 4:VrakhtarSkills(player);break;
+            case 5:ATGOMASkills(player);break;
+            case 6:DiandraSkills(player);break;
         }
     }
 
@@ -45,56 +29,56 @@ public class bossSkills {
     }
 
     //FIRE STRUCK//
-    public void ZylnorSkills(player player, entity boss) {
+    public void ZylnorSkills(player player) {
         player.setCharHP(player.getCharHP() - 20);
     }
 
     //ONE MORE TIME
-    public void  EryndraSkills(player player, entity boss) {
+    public void  EryndraSkills(entity boss) {
         boss.setEntHP(boss.getEntHP() + 200);
     }
 
     //BONE OF STEEL
-    public void ThraxxussSkills(player player, entity boss) {
+    public void ThraxxussSkills(entity boss) {
         boss.setEntHP(boss.getEntHP() + 50); boss.setEntAtk(boss.getEntAtk() + 10);
     }
 
     //WHAT'S WRONG WITH ME?
-    public void KaelithSkills(player player, entity boss) {
-        int count = 0;
-        if(count == 0){
+    public void KaelithSkills(entity boss) {
+        boolean active = true;
+        if(active){
             boss.setEntHP(boss.getEntAtk() * 10); boss.setEntAtk(boss.getEntHP() * 10);
-            count = 1;
+            active = false;
         }
-        if(count == 1){
+        if(!active){
             boss.setEntHP(100); boss.setEntAtk(10);
-            count = 0;
+            active = true;
         }
     }
 
     //EMPEROR OF TIME
-    public void VrakhtarSkills(player player, entity boss) {
-        int count = 0;
-        if(count == 0){
-            player.setCharHP(10); count = 1;
-        }if(count == 1){
+    public void VrakhtarSkills(player player) {
+        boolean active = true;
+        if(active){
+            player.setCharHP(10); active = false;
+        }if(!active){
             player.setCharHP(100); player.setCharCoin(player.getCharCoin() + 100);
-            count = 0;
+            active = true;
         }
     }
 
-    public void ATGOMASkills(player player, entity boss) {
-        int count = 0;
-        if(count == 0){
+    public void ATGOMASkills(player player) {
+        boolean active = true;
+        if(active){
             player.setCharHP(1); player.setCharAtk(1);player.setCharCoin(1);
-            count = 1;
-        }if(count == 1){
+            active = false;
+        }if(!active){
             player.setCharHP(200); player.setCharAtk(200);player.setCharCoin(200);
-            count = 0;
+            active = true;
         }
     }
 
-    public void DiandraSkills(player player, entity boss) {
+    public void DiandraSkills(player player) {
        player.setCharHP(player.getCharHP() - 500);
     }
 

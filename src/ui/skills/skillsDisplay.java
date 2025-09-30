@@ -2,6 +2,7 @@ package ui.skills;
 
 import com.sun.tools.javac.Main;
 import javafx.scene.control.Alert;
+import javafx.stage.StageStyle;
 import method.*;
 import model.*;
 
@@ -32,27 +33,36 @@ public class skillsDisplay {
      VBox root = new VBox(); root.setMinSize(240,360);
      root.setAlignment(Pos.CENTER);
 
-    VBox upperRoot = new VBox(); upperRoot.setAlignment(Pos.TOP_CENTER);
-    upperRoot.setMinSize(240, 320);
-    upperRoot.setPadding(new Insets(24,40,24,40)); upperRoot.setSpacing(10);
-    upperRoot.getChildren().addAll(skill1,skill2,skill3);
+     VBox upperRoot = new VBox(); upperRoot.setAlignment(Pos.TOP_CENTER);
+     upperRoot.setMinSize(240, 320);
+     upperRoot.setPadding(new Insets(24,40,24,40)); upperRoot.setSpacing(10);
+     upperRoot.getChildren().addAll(skill1,skill2,skill3);
 
-    VBox lowerRoot = new VBox(); lowerRoot.setAlignment(Pos.BOTTOM_RIGHT);
-    lowerRoot.setPadding(new Insets(0,24,10,24));
-    lowerRoot.setMinSize(240, 40);
-    lowerRoot.getChildren().addAll(exit);
+     VBox lowerRoot = new VBox(); lowerRoot.setAlignment(Pos.BOTTOM_RIGHT);
+     lowerRoot.setPadding(new Insets(0,24,10,24));
+     lowerRoot.setMinSize(240, 40);
+     lowerRoot.getChildren().addAll(exit);
 
-    skill1.setOnAction(e -> {skill1Effect(MainChar, enemy);});
-    skill2.setOnAction(e -> {skill2Effect(MainChar, enemy);});
-    skill3.setOnAction(e -> {skill3Effect(MainChar, enemy);});
-    exit.setOnMouseClicked(e->{
+     skill1.setOnAction(e -> {skill1Effect(MainChar, enemy);});
+     skill2.setOnAction(e -> {skill2Effect(MainChar, enemy);});
+     skill3.setOnAction(e -> {skill3Effect(MainChar, enemy);});
+     exit.setOnMouseClicked(e->{
         stage.close();
         activePane.setActivePane(false);
-    });
+     });
 
      root.getChildren().addAll(upperRoot,lowerRoot);
      stage.setResizable(false);
-     stage.setScene(new Scene(root));
+     stage.setOnCloseRequest(event -> {
+         event.consume(); // blokir action close
+         System.out.println("Close button disabled!");
+     });
+
+     Scene scene = new Scene(root);
+        scene.getStylesheets().add(
+                getClass().getResource("/font/styles.css").toExternalForm()
+        );
+     stage.setScene(scene);
      stage.show();
     }
 
@@ -85,6 +95,7 @@ public class skillsDisplay {
         }else {
             alert();
         }
+
         refresh.refreshCharStat(); refresh.refreshEntStat();
     }
 

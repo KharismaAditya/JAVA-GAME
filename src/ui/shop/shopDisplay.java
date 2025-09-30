@@ -1,6 +1,8 @@
 package ui.shop;
 
 import javafx.scene.control.Alert;
+import javafx.scene.text.Font;
+import javafx.stage.StageStyle;
 import method.*;
 import model.*;
 
@@ -74,7 +76,15 @@ public class shopDisplay {
         });
 
         root.getChildren().addAll(upSection, downSection);
-        stage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(
+                getClass().getResource("/font/styles.css").toExternalForm()
+        );
+        stage.setOnCloseRequest(event -> {
+            event.consume(); // blokir action close
+            System.out.println("Close button disabled!");
+        });
+        stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
     }

@@ -1,13 +1,15 @@
 package ui.battle;
+
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 import method.*;
 import model.*;
 import ui.shop.*;
+import ui.menu.newGame.ngDisplay;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,27 +22,20 @@ import ui.skills.skillsDisplay;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class mainDisplay extends Application implements Refreshable , ActivePane{
+public class mainDisplay implements Refreshable, ActivePane {
+    Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
+
     mainComp comp = new mainComp();
     shopDisplay shop = new shopDisplay(this, this);
     skillsDisplay skills = new skillsDisplay(this, this);
     bossSkills bossSkills = new bossSkills();
 
-
     boolean activePane = false;
-
-    @Override
-    public boolean getActivePane() {return activePane;}
-    public void setActivePane(boolean activePane) {this.activePane = activePane;}
-
     private boolean enemyAttack = false;
-    public boolean isEnemyAttack() {return enemyAttack;}
-    public void setEnemyAttack(boolean enemyAttack) {this.enemyAttack = enemyAttack;}
 
-    player Mainchar = new player(100, 30, 50);
+    player Mainchar;   // ✅ player dari ngDisplay
     int currentenemyindex;
     entityList enmList = new entityList();
-
     ArrayList<entity> arrEnt = enmList.entList();
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
 
@@ -53,6 +48,8 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
     Label statEntHP;
     Label statEntATK;
 
+    HBox statdisplay = new HBox();
+    Label statName;
     Label statHP;
     Label statATK;
     Label statCoin;
@@ -68,8 +65,24 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
     Button row2col1 = comp.row1("EXIT");
     Button row2col2 = comp.row1("SKILLS");
 
+    // ✅ Constructor menerima player
+    public mainDisplay(player Mainchar) {
+        this.Mainchar = Mainchar;
+    }
+
     @Override
-    public void start(Stage stage) throws Exception {
+    public boolean getActivePane() { return activePane; }
+    public void setActivePane(boolean activePane) {
+        this.activePane = activePane;
+        buttonsButton.setVisible(!activePane);
+    }
+
+    public boolean isEnemyAttack() { return enemyAttack; }
+    public void setEnemyAttack(boolean enemyAttack) { this.enemyAttack = enemyAttack; }
+
+    public void start() throws Exception {
+        Stage stage = new Stage();
+        System.out.println("Font loaded: " + font.getName());
         entity currentEnt = arrEnt.get(count());
 
         HBox mainroot = new HBox();
@@ -79,37 +92,44 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
         root.setStyle("-fx-background-color: #FFFFFF");
 
         display.setStyle("-fx-background-color: #D9D9D9");
-        display.setMinSize(480,200);
+        display.setMinSize(480, 200);
 
-        winOrLose.setMinSize(480,200); winOrLose.setAlignment(Pos.CENTER);
+        winOrLose.setMinSize(480, 200);
+        winOrLose.setAlignment(Pos.CENTER);
         defenseRNG = new Label("");
         winOrLose.getChildren().add(defenseRNG);
 
-        displayPane.setPrefSize(480,200);
-        displayPane.getChildren().addAll(display,winOrLose);
+        displayPane.setPrefSize(480, 200);
+        displayPane.getChildren().addAll(display, winOrLose);
 
         display.setAlignment(Pos.BOTTOM_CENTER);
         display.setSpacing(30);
         nameEnt = new Label(arrEnt.get(count()).getEntName());
         statEntHP = new Label("Enemy HP: " + arrEnt.get(count()).getEntHP());
         statEntATK = new Label("Enemy ATK: " + arrEnt.get(count()).getEntAtk());
-        display.getChildren().addAll(nameEnt,statEntHP,statEntATK);
+        display.getChildren().addAll(nameEnt, statEntHP, statEntATK);
 
         buttonsButton.setPrefSize(480, 120);
 
-        HBox statdisplay = new HBox(); statdisplay.setStyle("-fx-background-color: #D9D9D9");
-        statdisplay.setPrefSize(480,20);
+        statdisplay.setStyle("-fx-background-color: #D9D9D9");
+        statdisplay.setPrefSize(480, 20);
         statdisplay.setAlignment(Pos.CENTER);
         statdisplay.setSpacing(30);
+
+        statName = new Label(Mainchar.getName());
         statHP = new Label("HP: " + Mainchar.getCharHP());
         statATK = new Label("ATK: " + Mainchar.getCharAtk());
         statCoin = new Label("Coin: " + Mainchar.getCharCoin());
-        statdisplay.getChildren().addAll(statHP, statATK, statCoin);
+        statdisplay.getChildren().addAll(statName, statHP, statATK, statCoin);
 
-        buttonsRow1.setMinSize(480, 60); buttonsRow1.setAlignment(Pos.TOP_CENTER);
-        buttonsRow1.setPadding(new Insets(18, 0, 8, 0)); buttonsRow1.setSpacing(30);
-        buttonsRow2.setMinSize(480, 60); buttonsRow2.setAlignment(Pos.TOP_CENTER);
-        buttonsRow2.setPadding(new Insets(8, 0, 16, 0)); buttonsRow2.setSpacing(60);
+        buttonsRow1.setMinSize(480, 60);
+        buttonsRow1.setAlignment(Pos.TOP_CENTER);
+        buttonsRow1.setPadding(new Insets(18, 0, 8, 0));
+        buttonsRow1.setSpacing(30);
+        buttonsRow2.setMinSize(480, 60);
+        buttonsRow2.setAlignment(Pos.TOP_CENTER);
+        buttonsRow2.setPadding(new Insets(8, 0, 16, 0));
+        buttonsRow2.setSpacing(60);
 
         buttonsRow1.getChildren().addAll(row1col1, row1col2, row1col3);
         buttonsRow2.getChildren().addAll(row2col1, row2col2);
@@ -119,33 +139,38 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
         mainroot.getChildren().add(root);
         Scene scene = new Scene(mainroot);
 
-        row1col1.setOnMouseClicked(e -> {attackScene();});
-        row1col2.setOnMouseClicked(e -> {defenseScene();});
+        scene.getStylesheets().add(
+                getClass().getResource("/font/styles.css").toExternalForm()
+        );
+
+        row1col1.setOnMouseClicked(e -> { attackScene(); });
+        row1col2.setOnMouseClicked(e -> { defenseScene(); });
         row1col3.setOnMouseClicked(e -> {
-            if(!getActivePane()){
+            if (!getActivePane()) {
                 setActivePane(true);
                 shop.SHOP(Mainchar);
             }
         });
-        row2col1.setOnMouseClicked(e -> {stage.close();});
+        row2col1.setOnMouseClicked(e -> { stage.close(); });
         row2col2.setOnMouseClicked(e -> {
-            if(!getActivePane()){
+            if (!getActivePane()) {
                 setActivePane(true);
-                skills.SKILLS(Mainchar,currentEnt);
+                skills.SKILLS(Mainchar, currentEnt);
             }
         });
-
 
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
+
     public void entAttackScene(entity currentEnt) {
         if (isEnemyAttack()) {
             Mainchar.setCharHP(Mainchar.getCharHP() - currentEnt.getEntAtk());
             refreshCharStat();
 
+            statdisplay.getChildren().remove(statName);
             statHP.setText("");
             statATK.setText("ENEMY ATTACKING");
             statCoin.setText("");
@@ -154,6 +179,7 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
             statEntATK.setText("Enemy ATK: " + currentEnt.getEntAtk());
 
             pause.setOnFinished(e -> {
+                statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
                 statATK.setText("ATK: " + Mainchar.getCharAtk());
@@ -170,6 +196,8 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
 
         if (skillCount == 5) {
             bossSkills.skillList(this, Mainchar, currentEnt);
+
+            statdisplay.getChildren().remove(statName);
             statHP.setText("");
             statATK.setText(bossSkills.bossSkillName(count()));
             statCoin.setText("");
@@ -178,6 +206,7 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
             statEntATK.setText("Enemy ATK: " + currentEnt.getEntAtk());
 
             pause.setOnFinished(e -> {
+                statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
                 statATK.setText("ATK: " + Mainchar.getCharAtk());
@@ -208,6 +237,7 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
 
     @Override
     public void refreshCharStat(){
+        statName.setText(Mainchar.getName());
         statHP.setText("HP: " + Mainchar.getCharHP());
         statATK.setText("ATK: " + Mainchar.getCharAtk());
         statCoin.setText("Coin: " + Mainchar.getCharCoin());
@@ -235,9 +265,11 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
             refreshEntStat();
         }
         else {
+            statdisplay.getChildren().remove(statName);
             statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
             nameEnt.setText("...");statEntHP.setText("ATTACKING"); statEntATK.setText("...");
             pause.setOnFinished(e->{
+                statdisplay.getChildren().add(0, statName);
                 refreshEntStat();
                 refreshCharStat();
                 entAttackScene(currentEnt);
@@ -316,10 +348,5 @@ public class mainDisplay extends Application implements Refreshable , ActivePane
             displayPane.getChildren().clear();
             displayPane.getChildren().addAll(display,winOrLose);
         });
-    }
-
-
-    public static void main(String[] args){
-        Application.launch(mainDisplay.class, args);
     }
 }

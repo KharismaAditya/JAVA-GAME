@@ -1,16 +1,19 @@
 package model;
 
 public class player {
+    private String name;
     private int CharHP;
     private int CharAtk;
     private int CharCoin;
 
-    public player(int CharHP, int CharAtk, int CharCoin) {
+    public player(String name, int CharHP, int CharAtk, int CharCoin) {
+        this.name = name;
         this.CharHP = CharHP;
         this.CharAtk = CharAtk;
         this.CharCoin = CharCoin;
     }
 
+    public String getName() {return name;}
     public int getCharCoin() {
         return CharCoin;
     }
