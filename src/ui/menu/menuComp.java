@@ -10,7 +10,7 @@ import javafx.scene.control.Button;
 
 public class menuComp {
     public Button PlayButton(){
-        Button button = new Button("PLAY");
+        Button button = new Button("PLAY GAME");
         button.setMinSize(140, 35);
         onStyle(button);
 
