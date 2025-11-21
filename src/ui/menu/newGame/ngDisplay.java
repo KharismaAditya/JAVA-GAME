@@ -72,6 +72,6 @@ public class ngDisplay {
     }
 
     public player newPlayer() {
-        return new player(name,100, 30, 50);
+        return new player(name,100, 30, 50, 0);
     }
 }

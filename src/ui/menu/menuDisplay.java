@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
-import ui.skills.skillsDisplay;
 
 public class menuDisplay extends Application {
     menuComp comp =  new menuComp();

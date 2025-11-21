@@ -8,7 +8,7 @@ import javafx.util.Duration;
 import method.*;
 import model.*;
 import ui.shop.*;
-import ui.menu.newGame.ngDisplay;
+import save_and_load.*;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,7 +34,6 @@ public class mainDisplay implements Refreshable, ActivePane {
     private boolean enemyAttack = false;
 
     player Mainchar;   // ✅ player dari ngDisplay
-    int currentenemyindex;
     entityList enmList = new entityList();
     ArrayList<entity> arrEnt = enmList.entList();
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
@@ -53,6 +52,7 @@ public class mainDisplay implements Refreshable, ActivePane {
     Label statHP;
     Label statATK;
     Label statCoin;
+    Label savingFile = new Label("SAVING...");
 
     VBox buttonsButton = new VBox();
     HBox buttonsRow1 = new HBox();
@@ -151,7 +151,19 @@ public class mainDisplay implements Refreshable, ActivePane {
                 shop.SHOP(Mainchar);
             }
         });
-        row2col1.setOnMouseClicked(e -> { stage.close(); });
+        row2col1.setOnMouseClicked(e -> {
+            saveloadSystem save = new saveloadSystem();
+            mainroot.getChildren().clear();mainroot.setAlignment(Pos.CENTER);
+            mainroot.getChildren().add(savingFile);
+            pause.setOnFinished(e1 ->{
+                save.savegame(Mainchar);
+                stage.close();
+            });
+
+            pause.play();
+        });
+
+
         row2col2.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
@@ -218,15 +230,15 @@ public class mainDisplay implements Refreshable, ActivePane {
 
 
     public int count(){
-     if(arrEnt.get(currentenemyindex).getEntHP()<=0){
+     if(arrEnt.get(Mainchar.getEnemyCount()).getEntHP()<=0){
          nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
          pause.setOnFinished(e->{
-             currentenemyindex++;
+             Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
              refreshEntStat();
          });
          pause.play();
      }
-     return currentenemyindex;
+     return Mainchar.getEnemyCount();
     }
     public void coinWin(){
         Random rand = new Random();
@@ -315,7 +327,7 @@ public class mainDisplay implements Refreshable, ActivePane {
                         nameEnt.setText("...");statEntHP.setText("STAGE CLEAR");statEntATK.setText("...");
                         pause.setOnFinished(e2 -> {
                             defenseRNG.setVisible(false);
-                            currentenemyindex++;
+                            Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
                             refreshEntStat();
                             refreshCharStat();
                         });
