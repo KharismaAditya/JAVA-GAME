@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Nigga",
+    "CharHP": 100,
+    "CharAtk": 30,
+    "CharCoin": 65,
+    "enemyCount": 1
+  },
+  {
+    "name": "PontolKetir",
+    "CharHP": 100,
+    "CharAtk": 30,
+    "CharCoin": 50,
+    "enemyCount": 0
+  }
+]

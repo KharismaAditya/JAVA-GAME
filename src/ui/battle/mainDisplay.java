@@ -156,7 +156,7 @@ public class mainDisplay implements Refreshable, ActivePane {
             mainroot.getChildren().clear();mainroot.setAlignment(Pos.CENTER);
             mainroot.getChildren().add(savingFile);
             pause.setOnFinished(e1 ->{
-                save.savegame(Mainchar);
+                save.addPlayer(Mainchar);
                 stage.close();
             });
 

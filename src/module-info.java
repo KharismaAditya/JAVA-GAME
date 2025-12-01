@@ -5,6 +5,9 @@ module BLACKBOARD {
     requires jdk.compiler;
     requires java.desktop;
     requires javafx.base;
+    requires com.google.gson;
+
+    opens model to com.google.gson;
 
     exports ui.battle;
     exports ui.menu;
