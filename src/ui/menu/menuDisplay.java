@@ -1,4 +1,6 @@
 package ui.menu;
+import save_and_load.saveloadSystem;
+import model.player;
 
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
@@ -15,9 +17,14 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 
+import java.util.ArrayList;
+import java.util.Scanner;
+
 public class menuDisplay extends Application {
     menuComp comp =  new menuComp();
     ngDisplay ng = new ngDisplay();
+    saveloadSystem save = new  saveloadSystem();
+
 
     Button playButton = comp.PlayButton();
     Button loadButton = comp.buttonComp("LOAD");
@@ -56,6 +63,15 @@ public class menuDisplay extends Application {
             pause.play();
         });
 
+        loadButton.setOnAction(e -> {
+            try {
+                loaddemo();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            stage.close();
+        });
+
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
@@ -63,5 +79,16 @@ public class menuDisplay extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void loaddemo() throws Exception {
+        Scanner input = new Scanner(System.in);
+        ArrayList<player> players = save.loadAllPlayers();
+        for(player p : players){
+            System.out.println(p.getName());
+        }
+        System.out.print("Choice :"); String choice = input.nextLine();
+        mainDisplay Play = new mainDisplay(save.loadPlayer(choice));
+        Play.start();
     }
 }

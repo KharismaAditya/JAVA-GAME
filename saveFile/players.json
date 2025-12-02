@@ -1,13 +1,20 @@
 [
   {
     "name": "Nigga",
-    "CharHP": 100,
+    "CharHP": 80,
     "CharAtk": 30,
     "CharCoin": 65,
     "enemyCount": 1
   },
   {
     "name": "PontolKetir",
+    "CharHP": 100,
+    "CharAtk": 30,
+    "CharCoin": 50,
+    "enemyCount": 0
+  },
+  {
+    "name": "Aditya",
     "CharHP": 100,
     "CharAtk": 30,
     "CharCoin": 50,
