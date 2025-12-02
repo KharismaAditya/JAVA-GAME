@@ -87,7 +87,7 @@ public class menuDisplay extends Application {
         for(player p : players){
             System.out.println(p.getName());
         }
-        System.out.print("Choice :"); String choice = input.nextLine();
+        System.out.print("Insert Choice :"); String choice = input.nextLine();
         mainDisplay Play = new mainDisplay(save.loadPlayer(choice));
         Play.start();
     }
