@@ -37,10 +37,10 @@ public class saveloadSystem {
 
         for (player p : players) {
             if (p.getName().equalsIgnoreCase(name)) {
-                return p; // ketemu
+                return p;
             }
         }
-        return null; // tidak ketemu
+        return null;
     }
 
 
@@ -49,7 +49,7 @@ public class saveloadSystem {
             ArrayList<player> players = gson.fromJson(reader, LIST_TYPE);
             return players != null ? players : new ArrayList<>();
         } catch (Exception e) {
-            return new ArrayList<>(); // file belum ada
+            return new ArrayList<>();
         }
     }
 
@@ -57,7 +57,7 @@ public class saveloadSystem {
     public void newSave(player p) {
         ArrayList<player> list = new ArrayList<>();
         list.add(p);
-        saveList(list); // overwrite
+        saveList(list);
         System.out.println("File save baru dibuat!");
     }
 

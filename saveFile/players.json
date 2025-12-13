@@ -8,10 +8,10 @@
   },
   {
     "name": "PontolKetir",
-    "CharHP": 100,
+    "CharHP": 80,
     "CharAtk": 30,
-    "CharCoin": 50,
-    "enemyCount": 0
+    "CharCoin": 71,
+    "enemyCount": 1
   },
   {
     "name": "Aditya",

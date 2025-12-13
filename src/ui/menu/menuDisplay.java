@@ -5,6 +5,7 @@ import model.player;
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
+import ui.menu.loadGame.lgDisplay;
 import ui.menu.newGame.*;
 import ui.battle.*;
 import javafx.application.Application;
@@ -17,12 +18,11 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class menuDisplay extends Application {
     menuComp comp =  new menuComp();
     ngDisplay ng = new ngDisplay();
+    lgDisplay lg = new lgDisplay();
     saveloadSystem save = new  saveloadSystem();
 
 
@@ -65,7 +65,7 @@ public class menuDisplay extends Application {
 
         loadButton.setOnAction(e -> {
             try {
-                loaddemo();
+                lg.loadDisplay();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -79,16 +79,5 @@ public class menuDisplay extends Application {
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public void loaddemo() throws Exception {
-        Scanner input = new Scanner(System.in);
-        ArrayList<player> players = save.loadAllPlayers();
-        for(player p : players){
-            System.out.println(p.getName());
-        }
-        System.out.print("Insert Choice :"); String choice = input.nextLine();
-        mainDisplay Play = new mainDisplay(save.loadPlayer(choice));
-        Play.start();
     }
 }
