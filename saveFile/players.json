@@ -1,7 +1,7 @@
 [
   {
     "name": "Nigga",
-    "CharHP": 80,
+    "CharHP": 60,
     "CharAtk": 30,
     "CharCoin": 65,
     "enemyCount": 1

@@ -1,6 +1,7 @@
 package ui.battle;
 
 import javafx.animation.PauseTransition;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -80,7 +81,7 @@ public class mainDisplay implements Refreshable, ActivePane {
     public boolean isEnemyAttack() { return enemyAttack; }
     public void setEnemyAttack(boolean enemyAttack) { this.enemyAttack = enemyAttack; }
 
-    public void start() throws Exception {
+    public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
         Stage stage = new Stage();
         System.out.println("Font loaded: " + font.getName());
         entity currentEnt = arrEnt.get(count());
@@ -137,9 +138,8 @@ public class mainDisplay implements Refreshable, ActivePane {
 
         root.getChildren().addAll(displayPane, buttonsButton, statdisplay);
         mainroot.getChildren().add(root);
-        Scene scene = new Scene(mainroot);
 
-        scene.getStylesheets().add(
+        mainroot.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
 
@@ -153,11 +153,12 @@ public class mainDisplay implements Refreshable, ActivePane {
         });
         row2col1.setOnMouseClicked(e -> {
             saveloadSystem save = new saveloadSystem();
-            mainroot.getChildren().clear();mainroot.setAlignment(Pos.CENTER);
+            mainroot.getChildren().clear();
+            mainroot.setAlignment(Pos.CENTER);
             mainroot.getChildren().add(savingFile);
             pause.setOnFinished(e1 ->{
                 save.addPlayer(Mainchar);
-                stage.close();
+                menuScene.setRoot(menuRoot);
             });
 
             pause.play();
@@ -172,8 +173,7 @@ public class mainDisplay implements Refreshable, ActivePane {
         });
 
         stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
+        return mainroot;
     }
 
 

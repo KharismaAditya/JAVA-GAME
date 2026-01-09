@@ -1,5 +1,6 @@
 package ui.menu.newGame;
 import javafx.animation.PauseTransition;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Font;
@@ -7,7 +8,6 @@ import javafx.util.Duration;
 import ui.battle.mainDisplay;
 import ui.menu.*;
 import model.*;
-import save_and_load.saveloadSystem;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,6 +20,7 @@ import javafx.scene.control.Button;
 public class ngDisplay {
     String name; player Player;
     menuComp comp = new menuComp();
+    menuDisplay menu = new menuDisplay();
 
     Label addName = new Label("ADD NAME");
     Label startGame = new Label("STARTING GAME..");
@@ -28,7 +29,7 @@ public class ngDisplay {
     TextField namePlayer = new TextField();
 
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
-    public void newGame() {
+    public VBox newGame(Scene menuScene, Parent menuRoot) {
         Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
         Stage stage = new Stage();
         VBox mainroot = new VBox();
@@ -43,8 +44,7 @@ public class ngDisplay {
         namePlayer.setMaxHeight(25); namePlayer.setMaxWidth(220);
         namePlayer.setPromptText("ENTER YOUR NAME");namePlayer.setFont(font);
         mainroot.getChildren().addAll(addName,namePlayer, buttonRoot);
-        Scene scene = new Scene(mainroot, 520, 360);
-        scene.getStylesheets().add(
+        mainroot.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
 
@@ -57,7 +57,7 @@ public class ngDisplay {
             pause.setOnFinished(e1->{
                 try {
                     mainDisplay Play = new mainDisplay(newP);
-                    Play.start();
+                    menu.setSceneCustom(menuScene, Play.start(menuScene,menuRoot));
                     stage.close();
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
@@ -67,9 +67,12 @@ public class ngDisplay {
             pause.play();
         });
 
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+        exit.setOnAction(e -> {
+            menuScene.setRoot(menuRoot);
+        });
+
+       stage.setResizable(false);
+       return mainroot;
     }
 
     public player newPlayer() {

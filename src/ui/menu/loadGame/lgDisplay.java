@@ -1,8 +1,8 @@
 package ui.menu.loadGame;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.util.Duration;
@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import ui.menu.menuDisplay;
 
 import java.util.ArrayList;
 
@@ -26,7 +27,7 @@ public class lgDisplay {
     Label startGame = new Label("STARTING GAME..");
     Label titleLabel = new Label("LOAD GAME");
 
-    public void loadDisplay() {
+    public VBox loadDisplay(Scene menuScene, Parent menuRoot, menuDisplay menu) {
         Stage stage = new Stage();
         VBox mainroot = new VBox();
         mainroot.setSpacing(15); mainroot.setAlignment(Pos.CENTER);
@@ -44,22 +45,20 @@ public class lgDisplay {
             Hyperlink pLink = new Hyperlink(p.getName()); pLink.setFont(font);
             listPlayer.getChildren().add(pLink);
             pLink.setOnAction(e -> {
-                alert(p, stage);
+                alert(p, menuScene, menuRoot, menu);
             });
         }
 
         mainroot.getChildren().addAll(title,listPlayer);
-        Scene scene = new Scene(mainroot, 520, 360);
-        scene.getStylesheets().add(
+        mainroot.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
 
+        stage.setResizable(false);
+        return mainroot;
     }
 
-    public void alert(player p, Stage mainStage){
+    public void alert(player p, Scene menuScene, Parent menuRoot, menuDisplay menu) {
         startGame.setFont(font);
         Stage stage = new Stage();
         VBox mainroot = new VBox();
@@ -74,13 +73,10 @@ public class lgDisplay {
         Button exit = new Button("EXIT");exit.setFont(font);
         load.setOnAction(e -> {
             mainDisplay Play = new mainDisplay(save.loadPlayer(p.getName()));
-            mainroot.getChildren().clear();
-            mainroot.getChildren().add(startGame);
             pause.setOnFinished(e1->{
                 try {
-                    Play.start();
                     stage.close();
-                    mainStage.close();
+                    menu.setSceneCustom(menuScene, Play.start(menuScene,menuRoot));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -90,6 +86,7 @@ public class lgDisplay {
         exit.setOnAction(e -> {
             stage.close();
         });
+
         buttonLayer.getChildren().addAll(load,exit);
         mainroot.getChildren().addAll(playerInfo,buttonLayer);
         Scene scene = new Scene(mainroot, 320, 130);
