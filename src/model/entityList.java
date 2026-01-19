@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class entityList {
     public ArrayList<entity> entList(){
         ArrayList<entity> list = new ArrayList<>();
-        list.add(new entity("Zylnor", 10, 10));
+        list.add(new entity("Zylnor", 1000, 10));
         list.add(new entity("Eryndra", 350, 20));
         list.add(new entity("Thraxxuss", 400, 30));
         list.add(new entity("Kaelith", 450, 40));

@@ -70,10 +70,10 @@ public class bossSkills {
     public void ATGOMASkills(player player) {
         boolean active = true;
         if(active){
-            player.setCharHP(1); player.setCharAtk(1);player.setCharCoin(1);
+            player.setCharHP(1); player.setCharAtkLVL(1);player.setCharCoin(1);
             active = false;
         }if(!active){
-            player.setCharHP(200); player.setCharAtk(200);player.setCharCoin(200);
+            player.setCharHP(200); player.setCharAtkLVL(200);player.setCharCoin(200);
             active = true;
         }
     }

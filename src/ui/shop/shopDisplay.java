@@ -1,8 +1,6 @@
 package ui.shop;
 
 import javafx.scene.control.Alert;
-import javafx.scene.text.Font;
-import javafx.stage.StageStyle;
 import method.*;
 import model.*;
 
@@ -22,10 +20,12 @@ public class shopDisplay {
     shopComp comp = new shopComp();
     Refreshable refresh;
     ActivePane activePane;
+    potionDamageChangeTemp temp;
 
-    public shopDisplay(Refreshable refresh, ActivePane activePane) {
+    public shopDisplay(Refreshable refresh, ActivePane activePane, potionDamageChangeTemp temp) {
         this.activePane = activePane;
         this.refresh = refresh;
+        this.temp = temp;
     }
 
     VBox item1 = comp.labelItem("BREAD:30");
@@ -113,7 +113,7 @@ public class shopDisplay {
             if (!potionActive) {
                 potionActive = true;
                 attackCount = 0;
-                Char.setCharAtk(Char.getCharAtk() + 10);
+                temp.setDamageChange(50);
             }
             Char.setCharCoin(Char.getCharCoin() - 70);
         }else{
@@ -125,12 +125,11 @@ public class shopDisplay {
         return potionActive;
     }
 
-    public void increaseAttackCount(player Char) {
+    public void increaseAttackCount(int mainDamage) {
         attackCount++;
         if (attackCount >= 5) {
-            // potion habis, reset ke base attack
             potionActive = false;
-            Char.setCharAtk(baseAtk);
+            temp.setDamageChange(0);
             refresh.refreshCharStat();
         }
     }

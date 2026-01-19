@@ -23,11 +23,11 @@ import ui.skills.skillsDisplay;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class mainDisplay implements Refreshable, ActivePane {
+public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeTemp {
     Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
 
     mainComp comp = new mainComp();
-    shopDisplay shop = new shopDisplay(this, this);
+    shopDisplay shop = new shopDisplay(this, this, this);
     skillsDisplay skills = new skillsDisplay(this, this);
     bossSkills bossSkills = new bossSkills();
 
@@ -38,6 +38,7 @@ public class mainDisplay implements Refreshable, ActivePane {
     entityList enmList = new entityList();
     ArrayList<entity> arrEnt = enmList.entList();
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
+
 
     HBox display = new HBox();
     HBox winOrLose = new HBox();
@@ -70,6 +71,7 @@ public class mainDisplay implements Refreshable, ActivePane {
     public mainDisplay(player Mainchar) {
         this.Mainchar = Mainchar;
     }
+    private int damagePotion = 0;
 
     @Override
     public boolean getActivePane() { return activePane; }
@@ -119,7 +121,7 @@ public class mainDisplay implements Refreshable, ActivePane {
 
         statName = new Label(Mainchar.getName());
         statHP = new Label("HP: " + Mainchar.getCharHP());
-        statATK = new Label("ATK: " + Mainchar.getCharAtk());
+        statATK = new Label("ATK: " + Mainchar.getCharDamage(Mainchar.getCharAtkLVL()));
         statCoin = new Label("Coin: " + Mainchar.getCharCoin());
         statdisplay.getChildren().addAll(statName, statHP, statATK, statCoin);
 
@@ -194,7 +196,7 @@ public class mainDisplay implements Refreshable, ActivePane {
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
-                statATK.setText("ATK: " + Mainchar.getCharAtk());
+                statATK.setText("ATK: " + Mainchar.getCharDamage(Mainchar.getCharAtkLVL()));
                 entSkillScene(currentEnt);
             });
             pause.play();
@@ -221,7 +223,7 @@ public class mainDisplay implements Refreshable, ActivePane {
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
-                statATK.setText("ATK: " + Mainchar.getCharAtk());
+                statATK.setText("ATK: " + Mainchar.getCharAtkLVL());
             });
             pause.play();
         }
@@ -251,7 +253,7 @@ public class mainDisplay implements Refreshable, ActivePane {
     public void refreshCharStat(){
         statName.setText(Mainchar.getName());
         statHP.setText("HP: " + Mainchar.getCharHP());
-        statATK.setText("ATK: " + Mainchar.getCharAtk());
+        statATK.setText("ATK: " + Mainchar.getCharDamage(Mainchar.getCharAtkLVL()));
         statCoin.setText("Coin: " + Mainchar.getCharCoin());
     }
 
@@ -265,11 +267,12 @@ public class mainDisplay implements Refreshable, ActivePane {
 
     public void attackScene(){
         entity currentEnt = arrEnt.get(count());
-        currentEnt.setEntHP(currentEnt.getEntHP() - Mainchar.getCharAtk());
+        int mainDamage = Mainchar.getCharDamage(Mainchar.getCharAtkLVL()) + getDamageChange();
+        currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
         setEnemyAttack(true);
 
         if (shop.isPotionActive()) {
-            shop.increaseAttackCount(Mainchar);
+            shop.increaseAttackCount(mainDamage);
         }
 
         if(currentEnt.getEntHP() <= 0){
@@ -319,7 +322,8 @@ public class mainDisplay implements Refreshable, ActivePane {
                 int answer = Integer.parseInt(input);
                 if(answer == answerGuess){
                     defenseRNG.setText("YOU WIN");
-                    currentEnt.setEntHP(currentEnt.getEntHP() - Mainchar.getCharAtk());
+                    int mainDamage = Mainchar.getCharDamage(Mainchar.getCharAtkLVL()) + getDamageChange();
+                    currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
 
                     if(currentEnt.getEntHP() <= 0){
                         currentEnt.setEntHP(0);
@@ -360,5 +364,15 @@ public class mainDisplay implements Refreshable, ActivePane {
             displayPane.getChildren().clear();
             displayPane.getChildren().addAll(display,winOrLose);
         });
+    }
+
+    @Override
+    public int getDamageChange() {
+        return damagePotion;
+    }
+
+    @Override
+    public void setDamageChange(int b) {
+        this.damagePotion = b;
     }
 }
