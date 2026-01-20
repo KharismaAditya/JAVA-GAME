@@ -23,13 +23,13 @@ import ui.skills.skillsDisplay;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeTemp {
+public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain{
     Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
 
     mainComp comp = new mainComp();
     shopDisplay shop = new shopDisplay(this, this, this);
     skillsDisplay skills = new skillsDisplay(this, this);
-    bossSkills bossSkills = new bossSkills();
+    bossSkills bossSkills = new bossSkills(this);
 
     boolean activePane = false;
     private boolean enemyAttack = false;
@@ -72,6 +72,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
         this.Mainchar = Mainchar;
     }
     private int damagePotion = 0;
+    private int damageChar;
 
     @Override
     public boolean getActivePane() { return activePane; }
@@ -267,7 +268,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
     public void attackScene(){
         entity currentEnt = arrEnt.get(count());
-        int mainDamage = Mainchar.getCharDamage(Mainchar.getCharAtkLVL()) + getDamageChange();
+        int mainDamage = getDamageChar() + getDamageChange();
         currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
         setEnemyAttack(true);
 
@@ -277,6 +278,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
         if(currentEnt.getEntHP() <= 0){
             currentEnt.setEntHP(0); coinWin();
+            Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
             refreshEntStat();
         }
         else {
@@ -322,13 +324,13 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 int answer = Integer.parseInt(input);
                 if(answer == answerGuess){
                     defenseRNG.setText("YOU WIN");
-                    int mainDamage = Mainchar.getCharDamage(Mainchar.getCharAtkLVL()) + getDamageChange();
+                    int mainDamage = getDamageChar() + getDamageChange();
                     currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
 
                     if(currentEnt.getEntHP() <= 0){
                         currentEnt.setEntHP(0);
                         coinWin();
-                        nameEnt.setText("...");statEntHP.setText("STAGE CLEAR");statEntATK.setText("...");
+                        Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
                         pause.setOnFinished(e2 -> {
                             defenseRNG.setVisible(false);
                             Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
@@ -373,6 +375,16 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
     @Override
     public void setDamageChange(int b) {
+        this.damagePotion = b;
+    }
+
+    @Override
+    public int getDamageChar() {
+        return Mainchar.getCharDamage(Mainchar.getCharAtkLVL());
+    }
+
+    @Override
+    public void setDamageChar(int b) {
         this.damagePotion = b;
     }
 }

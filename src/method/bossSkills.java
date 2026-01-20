@@ -4,6 +4,11 @@ import ui.battle.*;
 import model.*;
 
 public class bossSkills {
+    CharDamageMain charDamageMain;
+
+    public bossSkills(CharDamageMain charDamageMain) {
+        this.charDamageMain = charDamageMain;
+    }
 
     public void skillList(mainDisplay display, player player, entity boss) {
         switch (display.count()){
@@ -70,10 +75,10 @@ public class bossSkills {
     public void ATGOMASkills(player player) {
         boolean active = true;
         if(active){
-            player.setCharHP(1); player.setCharAtkLVL(1);player.setCharCoin(1);
+            player.setCharHP(1); charDamageMain.setDamageChar(1);player.setCharCoin(1);
             active = false;
         }if(!active){
-            player.setCharHP(200); player.setCharAtkLVL(200);player.setCharCoin(200);
+            player.setCharHP(200); charDamageMain.setDamageChar(player.getCharDamage(player.getCharAtkLVL()));player.setCharCoin(200);
             active = true;
         }
     }
