@@ -1,5 +1,6 @@
 package ui.shop;
 
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import method.*;
 import model.*;
@@ -28,66 +29,63 @@ public class shopDisplay {
         this.temp = temp;
     }
 
-    VBox item1 = comp.labelItem("BREAD:30");
-    VBox item2 = comp.labelItem("STEAK:50");
-    VBox item3 = comp.labelItem("MAGIC POTION:70");
+    VBox item1 = comp.labelItem("BREAD");
+    VBox item2 = comp.labelItem("STEAK");
+    VBox item3 = comp.labelItem("MAGIC POTION");
 
     Button buy1 = comp.buyButton();
     Button buy2 = comp.buyButton();
     Button buy3 = comp.buyButton();
     Button exit = comp.ExitButton();
 
-    public void SHOP(player mainchar) {
+    public VBox SHOP(player mainchar, Scene mainscene, Parent mainroot) {
         Stage stage = new Stage();
         VBox root = new VBox();
         root.setStyle("-fx-background-color: #FFFFFF;");
-        root.setMinSize(240, 360);
+        root.setMinSize(520, 360);
 
-        HBox upSection = new HBox(); upSection.setMinSize(240, 313);
+        HBox upsection = new HBox(); upsection.setMinSize(520,50);
+        upsection.setAlignment(Pos.CENTER_RIGHT);
+        upsection.setPadding(new Insets(10,14,10,14));
+        Button exit = comp.ExitButton();
+        upsection.getChildren().add(exit);
 
-        VBox upSectionRow1 = new VBox();
-        upSectionRow1.setMinSize(170, 313);
-        upSectionRow1.setAlignment(Pos.TOP_CENTER);
-        upSectionRow1.setPadding(new Insets(19, 15, 19, 15));
-        upSectionRow1.setSpacing(20);
-        upSectionRow1.getChildren().addAll(item1,item2,item3);
+        HBox middleSection = new HBox(); middleSection.setMinSize(520,196);
+        middleSection.setAlignment(Pos.CENTER);
+        middleSection.setPadding(new Insets(16,44,0,44));
+        middleSection.setSpacing(43);
+        middleSection.getChildren().addAll(item1,item2,item3);
 
-        VBox upSectionRow2 = new VBox();
-        upSectionRow2.setMinSize(70, 313);
-        upSectionRow2.setAlignment(Pos.TOP_CENTER);
-        upSectionRow2.setPadding(new Insets(19, 15, 19, 20));
-        upSectionRow2.setSpacing(20);
-        upSectionRow2.getChildren().addAll(buy1,buy2,buy3);
+        HBox middleSection2 = new HBox(); middleSection2.setMinSize(520,65);
+        middleSection2.setAlignment(Pos.CENTER);
+        middleSection2.setPadding(new Insets(16,44,16,44));
+        middleSection2.setSpacing(43);
+        middleSection2.getChildren().addAll(buy1,buy2,buy3);
 
-        upSection.getChildren().addAll(upSectionRow1, upSectionRow2);
+        HBox downSection = new HBox(); downSection.setMinSize(520,50);
+        root.getChildren().addAll(upsection,middleSection,middleSection2,downSection);
 
-        VBox downSection = new VBox();
-        downSection.setMinSize(240, 47);
-        downSection.setAlignment(Pos.CENTER_RIGHT);
-        downSection.setPadding(new Insets(19, 6, 19, 6));
-        downSection.getChildren().addAll(exit);
 
         buy1.setOnMouseClicked(e -> {breadEffect(mainchar);});
         buy2.setOnMouseClicked(e -> {steakEffect(mainchar);});
         buy3.setOnMouseClicked(e -> {magicPotionEffect(mainchar);});
         exit.setOnMouseClicked(e -> {
-            stage.close();
+            mainscene.setRoot(mainroot);
             activePane.setActivePane(false);
         });
 
-        root.getChildren().addAll(upSection, downSection);
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(
+        root.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
         stage.setOnCloseRequest(event -> {
             event.consume(); // blokir action close
             System.out.println("Close button disabled!");
         });
-        stage.setScene(scene);
+
         stage.setResizable(false);
-        stage.show();
+        return root;
     }
+
     public void breadEffect(player Char) {
         if(Char.getCharCoin() >= 30){
             Char.setCharHP(Char.getCharHP() + 50);

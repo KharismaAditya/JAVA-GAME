@@ -66,6 +66,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
     Button row2col1 = comp.row1("EXIT");
     Button row2col2 = comp.row1("SKILLS");
+    Button row2col3 = comp.row1("WEAPONS");
 
     // ✅ Constructor menerima player
     public mainDisplay(player Mainchar) {
@@ -132,11 +133,11 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
         buttonsRow1.setSpacing(30);
         buttonsRow2.setMinSize(480, 60);
         buttonsRow2.setAlignment(Pos.TOP_CENTER);
-        buttonsRow2.setPadding(new Insets(8, 0, 16, 0));
-        buttonsRow2.setSpacing(60);
+        buttonsRow2.setPadding(new Insets(8, 0, 8, 0));
+        buttonsRow2.setSpacing(30);
 
         buttonsRow1.getChildren().addAll(row1col1, row1col2, row1col3);
-        buttonsRow2.getChildren().addAll(row2col1, row2col2);
+        buttonsRow2.getChildren().addAll(row2col1, row2col2, row2col3);
         buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
 
         root.getChildren().addAll(displayPane, buttonsButton, statdisplay);
@@ -151,7 +152,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
         row1col3.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
-                shop.SHOP(Mainchar);
+                menuScene.setRoot(shop.SHOP(Mainchar,menuScene,mainroot));
             }
         });
         row2col1.setOnMouseClicked(e -> {
@@ -171,7 +172,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
         row2col2.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
-                skills.SKILLS(Mainchar, currentEnt);
+                menuScene.setRoot(skills.SKILLS(Mainchar, currentEnt, menuScene, mainroot));
             }
         });
 

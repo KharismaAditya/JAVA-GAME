@@ -10,7 +10,7 @@ public class shopComp {
     mainComp style = new mainComp();
 
     public VBox labelItem(String message){
-        VBox vbox = new VBox(); vbox.setMinSize(140, 35);
+        VBox vbox = new VBox(); vbox.setMinSize(115, 180);
         vbox.setStyle("-fx-background-color: #D9D9D9;"); vbox.setAlignment(Pos.CENTER);
         Label label = new Label(message);
         vbox.getChildren().add(label);
@@ -18,7 +18,7 @@ public class shopComp {
     }
 
     public Button buyButton(){
-        Button button = new Button("BUY"); button.setMinSize(35,35);
+        Button button = new Button("BUY"); button.setMinSize(115,32);
         button.setStyle("-fx-background-color: #D9D9D9;");
         onStyle(button);
         return button;

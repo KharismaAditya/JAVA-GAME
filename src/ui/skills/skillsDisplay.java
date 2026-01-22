@@ -1,7 +1,9 @@
 package ui.skills;
 
 import com.sun.tools.javac.Main;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.HBox;
 import javafx.stage.StageStyle;
 import method.*;
 import model.*;
@@ -22,48 +24,59 @@ public class skillsDisplay {
     }
     skillsComp comp = new skillsComp();
 
-    Button skill1 = comp.buyButton("ARMAGEDDON\n100 HP 120 COIN");
-    Button skill2 = comp.buyButton("SONG OF THE SEA\n200 COIN");
-    Button skill3 = comp.buyButton("CALL OF DEATH\n300 COIN and Something");
+    VBox item1 = comp.labelItem("ARMAGEDDON");
+    VBox item2 = comp.labelItem("WIND SEA");
+    VBox item3 = comp.labelItem("CALL OF DEATH");
 
+    Button buy1 = comp.buyButton();
+    Button buy2 = comp.buyButton();
+    Button buy3 = comp.buyButton();
     Button exit = comp.ExitButton();
 
-    public void SKILLS(player MainChar, entity enemy){
-     Stage stage = new Stage();
-     VBox root = new VBox(); root.setMinSize(240,360);
-     root.setAlignment(Pos.CENTER);
+    public VBox SKILLS(player MainChar, entity enemy, Scene mainscene, Parent mainroot) {
+        Stage stage = new Stage();
+        VBox root = new VBox();
+        root.setStyle("-fx-background-color: #FFFFFF;");
+        root.setMinSize(520, 360);
 
-     VBox upperRoot = new VBox(); upperRoot.setAlignment(Pos.TOP_CENTER);
-     upperRoot.setMinSize(240, 320);
-     upperRoot.setPadding(new Insets(24,40,24,40)); upperRoot.setSpacing(10);
-     upperRoot.getChildren().addAll(skill1,skill2,skill3);
+        HBox upsection = new HBox(); upsection.setMinSize(520,50);
+        upsection.setAlignment(Pos.CENTER_RIGHT);
+        upsection.setPadding(new Insets(10,14,10,14));
+        upsection.getChildren().add(exit);
 
-     VBox lowerRoot = new VBox(); lowerRoot.setAlignment(Pos.BOTTOM_RIGHT);
-     lowerRoot.setPadding(new Insets(0,24,10,24));
-     lowerRoot.setMinSize(240, 40);
-     lowerRoot.getChildren().addAll(exit);
+        HBox middleSection = new HBox(); middleSection.setMinSize(520,196);
+        middleSection.setAlignment(Pos.CENTER);
+        middleSection.setPadding(new Insets(16,44,0,44));
+        middleSection.setSpacing(43);
+        middleSection.getChildren().addAll(item1,item2,item3);
 
-     skill1.setOnAction(e -> {skill1Effect(MainChar, enemy);});
-     skill2.setOnAction(e -> {skill2Effect(MainChar, enemy);});
-     skill3.setOnAction(e -> {skill3Effect(MainChar, enemy);});
-     exit.setOnMouseClicked(e->{
-        stage.close();
-        activePane.setActivePane(false);
-     });
+        HBox middleSection2 = new HBox(); middleSection2.setMinSize(520,65);
+        middleSection2.setAlignment(Pos.CENTER);
+        middleSection2.setPadding(new Insets(16,44,16,44));
+        middleSection2.setSpacing(43);
+        middleSection2.getChildren().addAll(buy1,buy2,buy3);
 
-     root.getChildren().addAll(upperRoot,lowerRoot);
-     stage.setResizable(false);
-     stage.setOnCloseRequest(event -> {
-         event.consume(); // blokir action close
-         System.out.println("Close button disabled!");
-     });
+        HBox downSection = new HBox(); downSection.setMinSize(520,50);
+        root.getChildren().addAll(upsection,middleSection,middleSection2,downSection);
 
-     Scene scene = new Scene(root);
-        scene.getStylesheets().add(
+        buy1.setOnAction(e -> {skill1Effect(MainChar, enemy);});
+        buy2.setOnAction(e -> {skill2Effect(MainChar, enemy);});
+        buy3.setOnAction(e -> {skill3Effect(MainChar, enemy);});
+        exit.setOnMouseClicked(e->{
+            mainscene.setRoot(mainroot);
+            activePane.setActivePane(false);
+        });
+
+        root.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
-     stage.setScene(scene);
-     stage.show();
+        stage.setOnCloseRequest(event -> {
+            event.consume(); // blokir action close
+            System.out.println("Close button disabled!");
+        });
+
+        stage.setResizable(false);
+        return root;
     }
 
     public void skill1Effect(player MainChar, entity enemy){
@@ -91,7 +104,7 @@ public class skillsDisplay {
 
         if(Mainchar.getCharCoin() >= 300){
             Mainchar.setCharHP((int) HPCost); Mainchar.setCharCoin(Mainchar.getCharCoin() - 300);
-            enemy.setEntHP(0);
+            enemy.setEntHP(1);
         }else {
             alert();
         }
