@@ -114,8 +114,10 @@ public class skillsDisplay {
 
     public void alert(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
-        alert.setTitle("Not Enough Coins");
         alert.setContentText("NOT ENOUGH COINS");
+        alert.getDialogPane().getStylesheets().add(
+                getClass().getResource("/font/styles.css").toExternalForm()
+        );
         alert.showAndWait();
     }
 }

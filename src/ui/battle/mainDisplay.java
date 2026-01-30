@@ -2,6 +2,7 @@ package ui.battle;
 
 import javafx.animation.PauseTransition;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -19,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import ui.skills.skillsDisplay;
+import ui.weapon.weaponDisplay;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -30,6 +32,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     shopDisplay shop = new shopDisplay(this, this, this);
     skillsDisplay skills = new skillsDisplay(this, this);
     bossSkills bossSkills = new bossSkills(this);
+    weaponDisplay weapons = new weaponDisplay(this,this,this);
 
     boolean activePane = false;
     private boolean enemyAttack = false;
@@ -74,6 +77,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     }
     private int damagePotion = 0;
     private int damageChar;
+
 
     @Override
     public boolean getActivePane() { return activePane; }
@@ -123,7 +127,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
         statName = new Label(Mainchar.getName());
         statHP = new Label("HP: " + Mainchar.getCharHP());
-        statATK = new Label("ATK: " + Mainchar.getCharDamage(Mainchar.getCharAtkLVL()));
+        statATK = new Label("ATK: " + getDamageChar());
         statCoin = new Label("Coin: " + Mainchar.getCharCoin());
         statdisplay.getChildren().addAll(statName, statHP, statATK, statCoin);
 
@@ -155,6 +159,14 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 menuScene.setRoot(shop.SHOP(Mainchar,menuScene,mainroot));
             }
         });
+
+        row2col3.setOnMouseClicked(e -> {
+            if (!getActivePane()) {
+                setActivePane(true);
+                menuScene.setRoot(weapons.WEAPON(Mainchar,menuScene,mainroot));
+            }
+        });
+
         row2col1.setOnMouseClicked(e -> {
             saveloadSystem save = new saveloadSystem();
             mainroot.getChildren().clear();
@@ -175,6 +187,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 menuScene.setRoot(skills.SKILLS(Mainchar, currentEnt, menuScene, mainroot));
             }
         });
+
 
         stage.setResizable(false);
         return mainroot;
@@ -198,7 +211,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
-                statATK.setText("ATK: " + Mainchar.getCharDamage(Mainchar.getCharAtkLVL()));
+                statATK.setText("ATK: " + getDamageChar());
                 entSkillScene(currentEnt);
             });
             pause.play();
@@ -225,7 +238,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
-                statATK.setText("ATK: " + Mainchar.getCharAtkLVL());
+                statATK.setText("ATK: " + getDamageChar());
             });
             pause.play();
         }
@@ -255,7 +268,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     public void refreshCharStat(){
         statName.setText(Mainchar.getName());
         statHP.setText("HP: " + Mainchar.getCharHP());
-        statATK.setText("ATK: " + Mainchar.getCharDamage(Mainchar.getCharAtkLVL()));
+        statATK.setText("ATK: " + getDamageChar());
         statCoin.setText("Coin: " + Mainchar.getCharCoin());
     }
 
@@ -268,105 +281,123 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     }
 
     public void attackScene(){
-        entity currentEnt = arrEnt.get(count());
-        int mainDamage = getDamageChar() + getDamageChange();
-        currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
-        setEnemyAttack(true);
+        if(getDamageChar() != 0){
+            entity currentEnt = arrEnt.get(count());
+            int mainDamage = getDamageChar() + getDamageChange();
+            currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
+            setEnemyAttack(true);
 
-        if (shop.isPotionActive()) {
-            shop.increaseAttackCount(mainDamage);
-        }
+            if (shop.isPotionActive()) {
+                shop.increaseAttackCount(mainDamage);
+            }
 
-        if(currentEnt.getEntHP() <= 0){
-            currentEnt.setEntHP(0); coinWin();
-            Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-            refreshEntStat();
-        }
-        else {
-            statdisplay.getChildren().remove(statName);
-            statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
-            nameEnt.setText("...");statEntHP.setText("ATTACKING"); statEntATK.setText("...");
-            pause.setOnFinished(e->{
-                statdisplay.getChildren().add(0, statName);
+            if(currentEnt.getEntHP() <= 0){
+                currentEnt.setEntHP(0); coinWin();
+                Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
                 refreshEntStat();
-                refreshCharStat();
-                entAttackScene(currentEnt);
-            });
-            pause.play();
+            }
+            else {
+                statdisplay.getChildren().remove(statName);
+                statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
+                nameEnt.setText("...");statEntHP.setText("ATTACKING"); statEntATK.setText("...");
+                pause.setOnFinished(e->{
+                    statdisplay.getChildren().add(0, statName);
+                    refreshEntStat();
+                    refreshCharStat();
+                    entAttackScene(currentEnt);
+                });
+                pause.play();
+            }
+        }else{
+            alertWeapon();
         }
     }
 
     public void defenseScene(){
-        displayPane.getChildren().clear();
-        buttonsButton.getChildren().clear();
+        if(getDamageChar() != 0){
+            displayPane.getChildren().clear();
+            buttonsButton.getChildren().clear();
 
-        Random rand = new Random();
-        entity currentEnt = arrEnt.get(count());
+            Random rand = new Random();
+            entity currentEnt = arrEnt.get(count());
 
-        int angka1 =  rand.nextInt(50);
-        int angka2 = rand.nextInt(50);
-        int answerGuess = angka1 + angka2;
+            int angka1 =  rand.nextInt(50);
+            int angka2 = rand.nextInt(50);
+            int answerGuess = angka1 + angka2;
 
-        VBox answerDisplay = new VBox();
-        answerDisplay.setStyle("-fx-background-color: #D9D9D9");
-        answerDisplay.setPadding(new Insets(30, 10, 30, 10));
-        answerDisplay.setAlignment(Pos.CENTER);
-        answerDisplay.setMinSize(480, 200);
-        answerDisplay.setSpacing(5);
+            VBox answerDisplay = new VBox();
+            answerDisplay.setStyle("-fx-background-color: #D9D9D9");
+            answerDisplay.setPadding(new Insets(30, 10, 30, 10));
+            answerDisplay.setAlignment(Pos.CENTER);
+            answerDisplay.setMinSize(480, 200);
+            answerDisplay.setSpacing(5);
 
-        VBox defenseguess = comp.defenseGuess(angka1, angka2);
-        Button answerBut = comp.row2("ANSWER");
-        answerDisplay.getChildren().addAll(defenseguess, answerBut);
-        displayPane.getChildren().addAll(answerDisplay);
+            VBox defenseguess = comp.defenseGuess(angka1, angka2);
+            Button answerBut = comp.row2("ANSWER");
+            answerDisplay.getChildren().addAll(defenseguess, answerBut);
+            displayPane.getChildren().addAll(answerDisplay);
 
-        answerBut.setOnMouseClicked(e -> {
-            String input = comp.getAnswer();
-            if (input != null && !input.trim().isEmpty()) {
-                int answer = Integer.parseInt(input);
-                if(answer == answerGuess){
-                    defenseRNG.setText("YOU WIN");
-                    int mainDamage = getDamageChar() + getDamageChange();
-                    currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
+            answerBut.setOnMouseClicked(e -> {
+                String input = comp.getAnswer();
+                if (input != null && !input.trim().isEmpty()) {
+                    int answer = Integer.parseInt(input);
+                    if(answer == answerGuess){
+                        defenseRNG.setText("YOU WIN");
+                        int mainDamage = getDamageChar() + getDamageChange();
+                        currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
 
-                    if(currentEnt.getEntHP() <= 0){
-                        currentEnt.setEntHP(0);
-                        coinWin();
-                        Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-                        pause.setOnFinished(e2 -> {
-                            defenseRNG.setVisible(false);
-                            Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
+                        if(currentEnt.getEntHP() <= 0){
+                            currentEnt.setEntHP(0);
+                            coinWin();
+                            Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
+                            pause.setOnFinished(e2 -> {
+                                defenseRNG.setVisible(false);
+                                Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
+                                refreshEntStat();
+                                refreshCharStat();
+                            });
+                            pause.play();
+                        } else {
                             refreshEntStat();
                             refreshCharStat();
-                        });
-                        pause.play();
+                            pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                            pause.play();
+                        }
                     } else {
-                        refreshEntStat();
+                        defenseRNG.setText("YOU LOSE");
+                        setEnemyAttack(true);
                         refreshCharStat();
-                        pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+
+                        pause.setOnFinished(e2 -> {
+                            defenseRNG.setVisible(false);
+                            entAttackScene(currentEnt);
+                        });
                         pause.play();
                     }
                 } else {
-                    defenseRNG.setText("YOU LOSE");
-                    setEnemyAttack(true);
-                    refreshCharStat();
-
-                    pause.setOnFinished(e2 -> {
-                        defenseRNG.setVisible(false);
-                        entAttackScene(currentEnt);
-                    });
+                    defenseRNG.setText("Please enter a number!");
+                    pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
                     pause.play();
                 }
-            } else {
-                defenseRNG.setText("Please enter a number!");
-                pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
-                pause.play();
-            }
 
-            entSkillScene(currentEnt);
-            buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
-            displayPane.getChildren().clear();
-            displayPane.getChildren().addAll(display,winOrLose);
-        });
+                entSkillScene(currentEnt);
+                buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
+                displayPane.getChildren().clear();
+                displayPane.getChildren().addAll(display,winOrLose);
+            });
+        }else{
+            alertWeapon();
+        }
+
+    }
+
+    public void alertWeapon(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
+        alert.setContentText("SELECT WEAPON FIRST");
+        alert.getDialogPane().getStylesheets().add(
+                getClass().getResource("/font/styles.css").toExternalForm()
+        );
+        alert.showAndWait();
     }
 
     @Override
@@ -381,11 +412,11 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
     @Override
     public int getDamageChar() {
-        return Mainchar.getCharDamage(Mainchar.getCharAtkLVL());
+        return damageChar;
     }
 
     @Override
     public void setDamageChar(int b) {
-        this.damagePotion = b;
+        this.damageChar = b;
     }
 }
