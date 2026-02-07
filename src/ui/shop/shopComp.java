@@ -1,5 +1,5 @@
 package ui.shop;
-import ui.battle.*;
+import ui.battleBOSS.*;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 
 public class shopComp {
-    mainComp style = new mainComp();
+    dunBossComp style = new dunBossComp();
 
     public VBox labelItem(String message){
         VBox vbox = new VBox(); vbox.setMinSize(115, 180);

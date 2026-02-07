@@ -6,7 +6,6 @@ import javafx.scene.control.Label;
 import javafx.util.Duration;
 import ui.menu.loadGame.lgDisplay;
 import ui.menu.newGame.*;
-import ui.battle.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

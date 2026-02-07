@@ -2,8 +2,8 @@ package model;
 
 import java.util.ArrayList;
 
-public class entityList {
-    public ArrayList<entity> entList(){
+public class bossEntityList {
+    public ArrayList<entity> bossList(){
         ArrayList<entity> list = new ArrayList<>();
         list.add(new entity("Zylnor", 800, 10));
         list.add(new entity("Eryndra", 1000, 20));

@@ -1,4 +1,4 @@
-package ui.battle;
+package ui.battleBOSS;
 
 import javafx.animation.PauseTransition;
 import javafx.scene.Parent;
@@ -25,10 +25,10 @@ import ui.weapon.weaponDisplay;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain{
+public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain{
     Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
 
-    mainComp comp = new mainComp();
+    dunBossComp comp = new dunBossComp();
     shopDisplay shop = new shopDisplay(this, this, this);
     skillsDisplay skills = new skillsDisplay(this, this);
     bossSkills bossSkills = new bossSkills(this);
@@ -38,8 +38,11 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     private boolean enemyAttack = false;
 
     player Mainchar;   // ✅ player dari ngDisplay
-    entityList enmList = new entityList();
-    ArrayList<entity> arrEnt = enmList.entList();
+    //if bossDungeon active
+    bossEntityList enmList = new bossEntityList();
+    ArrayList<entity> arrEnt = enmList.bossList();
+
+
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
 
 
@@ -72,7 +75,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     Button row2col3 = comp.row1("WEAPONS");
 
     // ✅ Constructor menerima player
-    public mainDisplay(player Mainchar) {
+    public dungeonBossDisplay(player Mainchar) {
         this.Mainchar = Mainchar;
     }
     private int damagePotion = 0;
@@ -92,7 +95,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
         Stage stage = new Stage();
         System.out.println("Font loaded: " + font.getName());
-        entity currentEnt = arrEnt.get(count());
+        entity currentEnt = arrEnt.get(count()); //if bossDungeon active
 
         HBox mainroot = new HBox();
         VBox root = new VBox();
@@ -127,7 +130,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
         statName = new Label(Mainchar.getName());
         statHP = new Label("HP: " + Mainchar.getCharHP());
-        statATK = new Label("ATK: " + getDamageChar());
+        statATK = new Label("WEAPON: " + weaponType());
         statCoin = new Label("Coin: " + Mainchar.getCharCoin());
         statdisplay.getChildren().addAll(statName, statHP, statATK, statCoin);
 
@@ -211,8 +214,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
-                statATK.setText("ATK: " + getDamageChar());
-                entSkillScene(currentEnt);
+                entSkillScene(currentEnt); //if bossDungeon active
             });
             pause.play();
             setEnemyAttack(false);
@@ -245,7 +247,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
     }
 
-
+    //if bossDungeon active
     public int count(){
      if(arrEnt.get(Mainchar.getEnemyCount()).getEntHP()<=0){
          nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
@@ -268,7 +270,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
     public void refreshCharStat(){
         statName.setText(Mainchar.getName());
         statHP.setText("HP: " + Mainchar.getCharHP());
-        statATK.setText("ATK: " + getDamageChar());
+        statATK.setText("WEAPON: " + weaponType());
         statCoin.setText("Coin: " + Mainchar.getCharCoin());
     }
 
@@ -282,7 +284,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
 
     public void attackScene(){
         if(getDamageChar() != 0){
-            entity currentEnt = arrEnt.get(count());
+            entity currentEnt = arrEnt.get(count()); //if bossDungeon active
             int mainDamage = getDamageChar() + getDamageChange();
             currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
             setEnemyAttack(true);
@@ -319,7 +321,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
             buttonsButton.getChildren().clear();
 
             Random rand = new Random();
-            entity currentEnt = arrEnt.get(count());
+            entity currentEnt = arrEnt.get(count()); //if bossDungeon active
 
             int angka1 =  rand.nextInt(50);
             int angka2 = rand.nextInt(50);
@@ -352,7 +354,7 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                             Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
                             pause.setOnFinished(e2 -> {
                                 defenseRNG.setVisible(false);
-                                Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
+                                Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1); //if bossDungeon active
                                 refreshEntStat();
                                 refreshCharStat();
                             });
@@ -398,6 +400,14 @@ public class mainDisplay implements Refreshable, ActivePane, potionDamageChangeT
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
         alert.showAndWait();
+    }
+
+    public String weaponType(){
+        if(getDamageChar() == 0){return "not selected";}
+        if(getDamageChar() == 100){return "DULL BLADE";}
+        if(getDamageChar() == 150){return "GREAT SWORD";}
+        if(getDamageChar() == 200){return "EXCALIBUR";}
+        return "ERROR";
     }
 
     @Override

@@ -8,7 +8,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.util.Duration;
 import model.player;
 import save_and_load.saveloadSystem;
-import ui.battle.mainDisplay;
+import ui.battleBOSS.dungeonBossDisplay;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ui.menu.menuDisplay;
+import ui.menu.townhall.townhallDisplay;
 
 import java.util.ArrayList;
 
@@ -72,11 +73,11 @@ public class lgDisplay {
         Button load = new Button("PLAY");load.setFont(font);
         Button exit = new Button("EXIT");exit.setFont(font);
         load.setOnAction(e -> {
-            mainDisplay Play = new mainDisplay(save.loadPlayer(p.getName()));
             pause.setOnFinished(e1->{
                 try {
                     stage.close();
-                    menu.setSceneCustom(menuScene, Play.start(menuScene,menuRoot));
+                    townhallDisplay townhall = new townhallDisplay();
+                    menu.setSceneCustom(menuScene, townhall.townhall(p,menuScene,menuRoot));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }

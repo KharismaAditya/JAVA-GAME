@@ -4,10 +4,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import ui.battle.mainComp;
+import ui.battleBOSS.dunBossComp;
 
 public class weaponComp {
-    mainComp style = new mainComp();
+    dunBossComp style = new dunBossComp();
 
     public VBox labelItem(String message){
         VBox vbox = new VBox(); vbox.setMinSize(115, 180);

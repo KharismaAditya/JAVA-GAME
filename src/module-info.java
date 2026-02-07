@@ -9,6 +9,6 @@ module BLACKBOARD {
 
     opens model to com.google.gson;
 
-    exports ui.battle;
+    exports ui.battleBOSS;
     exports ui.menu;
 }

@@ -39,7 +39,7 @@ public class player {
 
     public int getCharDamage(int CharAtkLVL){
         if(CharAtkLVL == 0){return 100;} //DULL BLADE
-        if(CharAtkLVL == 1){return 150;} //PRELUDE SWORD
+        if(CharAtkLVL == 1){return 150;} //GREATSWORD
         if(CharAtkLVL == 2){return 200;} //EXCALIBUR
         return 0;
     }

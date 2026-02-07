@@ -1,6 +1,6 @@
 package method;
 
-import ui.battle.*;
+import ui.battleBOSS.*;
 import model.*;
 
 public class bossSkills {
@@ -10,7 +10,7 @@ public class bossSkills {
         this.charDamageMain = charDamageMain;
     }
 
-    public void skillList(mainDisplay display, player player, entity boss) {
+    public void skillList(dungeonBossDisplay display, player player, entity boss) {
         switch (display.count()){
             case 0:ZylnorSkills(player);break;
             case 1:EryndraSkills(boss);break;

@@ -5,7 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-import ui.battle.mainDisplay;
+import ui.battleBOSS.dungeonBossDisplay;
 import ui.menu.*;
 import model.*;
 
@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
+import ui.menu.townhall.townhallDisplay;
 
 public class ngDisplay {
     String name; player Player;
@@ -56,8 +57,8 @@ public class ngDisplay {
             mainroot.getChildren().add(startGame);
             pause.setOnFinished(e1->{
                 try {
-                    mainDisplay Play = new mainDisplay(newP);
-                    menu.setSceneCustom(menuScene, Play.start(menuScene,menuRoot));
+                    townhallDisplay townhall = new townhallDisplay();
+                    menu.setSceneCustom(menuScene,townhall.townhall(newP,menuScene,menuRoot));
                     stage.close();
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);

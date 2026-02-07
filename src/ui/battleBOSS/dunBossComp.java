@@ -1,4 +1,4 @@
-package ui.battle;
+package ui.battleBOSS;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 
 
-public class mainComp {
+public class dunBossComp {
     private String answer;
 
     public String getAnswer() {
