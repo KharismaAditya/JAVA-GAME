@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.player;
 import ui.battleBOSS.dungeonBossDisplay;
+import ui.battleGRIND.dunGrinDisplay;
 import ui.menu.menuDisplay;
 
 public class townhallDisplay {
@@ -69,6 +70,15 @@ public class townhallDisplay {
                 throw new RuntimeException(ex);
             }
             stage.close();
+        });
+
+        dungeonEntry.setOnAction(e->{
+            dunGrinDisplay Play = new  dunGrinDisplay(mainchar);
+            try {
+                menu.setSceneCustom(menuscene,Play.start(menuscene,menuroot));
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         exit.setOnAction(e->{
