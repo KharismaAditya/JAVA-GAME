@@ -37,8 +37,7 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     boolean activePane = false;
     private boolean enemyAttack = false;
 
-    player Mainchar;   // ✅ player dari ngDisplay
-    //if bossDungeon active
+    player Mainchar;
     bossEntityList enmList = new bossEntityList();
     ArrayList<entity> arrEnt = enmList.bossList();
 
@@ -250,12 +249,8 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     //if bossDungeon active
     public int count(){
      if(arrEnt.get(Mainchar.getEnemyCount()).getEntHP()<=0){
-         nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
-         pause.setOnFinished(e->{
-             Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
-             refreshEntStat();
-         });
-         pause.play();
+         Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
+         refreshEntStat();
      }
      return Mainchar.getEnemyCount();
     }
@@ -294,9 +289,16 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             }
 
             if(currentEnt.getEntHP() <= 0){
-                currentEnt.setEntHP(0); coinWin();
-                Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-                refreshEntStat();
+                statdisplay.getChildren().remove(statName);
+                statHP.setText(""); statATK.setText("ENTERING NEW ROOM"); statCoin.setText("");
+                nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
+                pause.setOnFinished(e->{
+                    refreshEntStat();
+                    currentEnt.setEntHP(0); coinWin();
+                    Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
+                    refreshEntStat();
+                });
+                pause.play();
             }
             else {
                 statdisplay.getChildren().remove(statName);
@@ -347,16 +349,15 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
                         defenseRNG.setText("YOU WIN");
                         int mainDamage = getDamageChar() + getDamageChange();
                         currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
-
                         if(currentEnt.getEntHP() <= 0){
-                            currentEnt.setEntHP(0);
-                            coinWin();
-                            Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-                            pause.setOnFinished(e2 -> {
-                                defenseRNG.setVisible(false);
-                                Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1); //if bossDungeon active
+                            statdisplay.getChildren().remove(statName);
+                            statHP.setText(""); statATK.setText("ENTERING NEW ROOM"); statCoin.setText("");
+                            nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
+                            pause.setOnFinished(e1->{
                                 refreshEntStat();
-                                refreshCharStat();
+                                currentEnt.setEntHP(0); coinWin();
+                                Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
+                                refreshEntStat();
                             });
                             pause.play();
                         } else {

@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import ui.menu.menuComp;
 import ui.menu.menuDisplay;
 import ui.menu.townhall.townhallDisplay;
 
@@ -23,10 +24,12 @@ import java.util.ArrayList;
 public class lgDisplay {
     Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 10);
 
+    menuComp comp = new menuComp();
     saveloadSystem save = new saveloadSystem();
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
     Label startGame = new Label("STARTING GAME..");
     Label titleLabel = new Label("LOAD GAME");
+    Button exit = comp.buttonComp("EXIT");
 
     public VBox loadDisplay(Scene menuScene, Parent menuRoot, menuDisplay menu) {
         Stage stage = new Stage();
@@ -50,10 +53,19 @@ public class lgDisplay {
             });
         }
 
-        mainroot.getChildren().addAll(title,listPlayer);
+        HBox exitSection = new HBox();
+        exitSection.setSpacing(15);
+        exitSection.setAlignment(Pos.CENTER);
+        exitSection.getChildren().add(exit);
+
+        mainroot.getChildren().addAll(title,listPlayer,exitSection);
         mainroot.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
+
+        exit.setOnAction(e->{
+            menuScene.setRoot(menuRoot);
+        });
 
         stage.setResizable(false);
         return mainroot;

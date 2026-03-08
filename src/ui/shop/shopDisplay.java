@@ -88,9 +88,9 @@ public class shopDisplay {
 
     public void breadEffect(player Char) {
         if(Char.getCharCoin() >= 30){
-            Char.setCharHP(Char.getCharHP() + 80);
+            Char.setCharHP(Char.getCharHP() + 30);
             Char.setCharCoin(Char.getCharCoin() - 30);
-            confirm("BREAD", 30);
+            confirm("BREAD", 30, "PLAYER HP + 30");
         }else{
             alert();
         }
@@ -101,7 +101,7 @@ public class shopDisplay {
         if(Char.getCharCoin() >= 50){
             Char.setCharHP(Char.getCharHP() + 50);
             Char.setCharCoin(Char.getCharCoin() - 50);
-            confirm("STEAK",50);
+            confirm("STEAK",50, "PLATFORM HP + 50");
         }else{
             alert();
         }
@@ -116,7 +116,7 @@ public class shopDisplay {
                 temp.setDamageChange(50);
             }
             Char.setCharCoin(Char.getCharCoin() - 70);
-            confirm("MAGIC POTION", 70);
+            confirm("MAGIC POTION", 70, "PLAYER DAMAGE +50");
         }else{
             alert();
         }
@@ -144,9 +144,10 @@ public class shopDisplay {
         alert.showAndWait();
     }
 
-    public void confirm(String item, int price){
+    public void confirm(String item, int price, String effectExplanation) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
-        alert.setContentText("BUYING " + item + " FOR " + price + " COIN");
+        alert.setContentText("BUYING " + item + " FOR " + price + " COIN \n" +
+                "EFFECT : " + effectExplanation );
         alert.getDialogPane().getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );

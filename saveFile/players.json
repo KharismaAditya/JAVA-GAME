@@ -1,23 +1,23 @@
 [
   {
-    "name": "Nigga",
-    "CharHP": 90,
+    "name": "BEGINNER",
+    "CharHP": 80,
     "CharAtkLVL": 0,
     "CharCoin": 100,
     "enemyCount": 0
   },
   {
-    "name": "PontolKetir",
+    "name": "AVERAGE",
     "CharHP": 70,
     "CharAtkLVL": 1,
     "CharCoin": 71,
     "enemyCount": 0
   },
   {
-    "name": "Aditya",
-    "CharHP": 126,
+    "name": "ADVANCE",
+    "CharHP": 86,
     "CharAtkLVL": 2,
-    "CharCoin": 207,
+    "CharCoin": 332,
     "enemyCount": 0
   }
 ]

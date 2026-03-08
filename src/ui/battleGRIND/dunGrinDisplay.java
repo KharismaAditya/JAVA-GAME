@@ -222,16 +222,6 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
         }
     }
 
-    public void transition(){
-        nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
-        pause.setOnFinished(e->{
-            refreshEntStat2();
-            refreshCharStat();
-        });
-        pause.play();
-    }
-
-
     public int randomEnt(int a){
         Random rand = new Random();
         int setEny = rand.nextInt(a);
@@ -276,10 +266,17 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
             }
 
             if(getTempHP() <= 0){
-                transition();coinWin();
+                nameEnt.setText("...");statEntHP.setText("ENEMY DEFEAT"); statEntATK.setText("...");
+                pause.setOnFinished(e->{
+                    refreshEntStat2();
+                    refreshCharStat();
+                });
+                pause.play();
+                coinWin();
                 setCurrent(randomEnt(3));setTempHP(currentEnt.getEntHP());
                 refreshEntStat2();refreshCharStat();
             }
+            refreshEntStat2();
         }else{
             alertWeapon();
         }
@@ -319,7 +316,7 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
                         setTempHP(getTempHP() - mainDamage);
 
                         if(getTempHP() <= 0){
-                            transition();
+                            pause.play();
                             coinWin();
                             setCurrent(randomEnt(3));setTempHP(currentEnt.getEntHP());
                             refreshEntStat2();refreshCharStat();
@@ -328,15 +325,11 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
                             pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
                             pause.play();
                         }
+                        refreshEntStat2();
                     } else {
                         defenseRNG.setText("YOU LOSE");
                         setEnemyAttack(true);
                         refreshCharStat();
-
-                        pause.setOnFinished(e2 -> {
-                            defenseRNG.setVisible(false);
-                            entAttackScene(currentEnt);
-                        });
                         pause.play();
                     }
                 } else {
