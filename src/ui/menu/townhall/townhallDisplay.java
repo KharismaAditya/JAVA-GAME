@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import model.player;
 import ui.battleBOSS.dungeonBossDisplay;
 import ui.battleGRIND.dunGrinDisplay;
+import ui.dialogSCENE.dialogDisplay;
 import ui.menu.menuDisplay;
 
 public class townhallDisplay {
@@ -63,11 +64,11 @@ public class townhallDisplay {
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
         bossEntry.setOnAction(e->{
-            dungeonBossDisplay Play = new dungeonBossDisplay(mainchar);
+            dialogDisplay dialog = new dialogDisplay();
             try {
-                menu.setSceneCustom(menuscene, Play.start(menuscene,menuroot));
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                menu.setSceneCustom(menuscene, dialog.DIALOG(mainchar,menuscene,menuroot));
+            }catch (Exception error){
+                error.printStackTrace();
             }
             stage.close();
         });

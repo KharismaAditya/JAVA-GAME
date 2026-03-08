@@ -1,5 +1,6 @@
 package ui.battleBOSS;
 
+import com.sun.tools.javac.Main;
 import javafx.animation.PauseTransition;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
@@ -9,6 +10,7 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import method.*;
 import model.*;
+import ui.dialogSCENE.dialogDisplay;
 import ui.shop.*;
 import save_and_load.*;
 
@@ -73,6 +75,8 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     Button row2col2 = comp.row1("SKILLS");
     Button row2col3 = comp.row1("WEAPONS");
 
+    Label winBosses = new Label("... ENTERING NEW ROOM ...");
+
     // ✅ Constructor menerima player
     public dungeonBossDisplay(player Mainchar) {
         this.Mainchar = Mainchar;
@@ -91,7 +95,9 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     public boolean isEnemyAttack() { return enemyAttack; }
     public void setEnemyAttack(boolean enemyAttack) { this.enemyAttack = enemyAttack; }
 
+
     public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
+
         Stage stage = new Stage();
         System.out.println("Font loaded: " + font.getName());
         entity currentEnt = arrEnt.get(count()); //if bossDungeon active
@@ -153,8 +159,12 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
 
-        row1col1.setOnMouseClicked(e -> { attackScene(); });
-        row1col2.setOnMouseClicked(e -> { defenseScene(); });
+        row1col1.setOnMouseClicked(e -> {
+            dialogTransition1(menuScene,menuRoot, mainroot);
+        });
+        row1col2.setOnMouseClicked(e -> {
+            dialogTransition2(menuScene,menuRoot, mainroot);
+        });
         row1col3.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
@@ -248,12 +258,64 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
     //if bossDungeon active
     public int count(){
-     if(arrEnt.get(Mainchar.getEnemyCount()).getEntHP()<=0){
-         Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
-         refreshEntStat();
-     }
      return Mainchar.getEnemyCount();
     }
+
+    public void winningCondition(){
+        Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
+        System.out.println(Mainchar.getEnemyCount());
+        refreshEntStat();
+    }
+
+    public void dialogTransition1(Scene menuscene, Parent mainroot, HBox DisplayRoot) {
+        if (damageChar != 0) {
+            attackScene(() -> {
+                DisplayRoot.getChildren().clear();
+                DisplayRoot.getChildren().add(winBosses);
+                DisplayRoot.setAlignment(Pos.CENTER);
+
+                PauseTransition enterRoom = new PauseTransition(Duration.seconds(1.5));
+                enterRoom.setOnFinished(e -> {
+                    winningCondition();
+                    dialogDisplay dialog = new dialogDisplay();
+                    try {
+                        Parent dialogRoot = dialog.DIALOG(Mainchar, menuscene, mainroot);
+                        menuscene.setRoot(dialogRoot);
+                    } catch (Exception error) {
+                        error.printStackTrace();
+                    }
+                });
+                enterRoom.play();
+            });
+        } else {
+            alertWeapon();
+        }
+    }
+
+    public void dialogTransition2(Scene menuscene, Parent mainroot, HBox DisplayRoot) {
+        if (damageChar != 0) {
+            defenseScene(() -> {
+                DisplayRoot.getChildren().clear();
+                DisplayRoot.getChildren().add(winBosses);
+                DisplayRoot.setAlignment(Pos.CENTER);
+                PauseTransition enterRoom = new PauseTransition(Duration.seconds(1.5));
+                enterRoom.setOnFinished(e -> {
+                    winningCondition();
+                    dialogDisplay dialog = new dialogDisplay();
+                    try {
+                        Parent dialogRoot = dialog.DIALOG(Mainchar, menuscene, mainroot);
+                        menuscene.setRoot(dialogRoot);
+                    } catch (Exception error) {
+                        error.printStackTrace();
+                    }
+                });
+                enterRoom.play();
+            });
+        } else {
+            alertWeapon();
+        }
+    }
+
     public void coinWin(){
         Random rand = new Random();
         int coinReward = rand.nextInt(100);
@@ -277,121 +339,121 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
         statEntATK.setText("Enemy ATK: " + arrEnt.get(count()).getEntAtk());
     }
 
-    public void attackScene(){
-        if(getDamageChar() != 0){
-            entity currentEnt = arrEnt.get(count()); //if bossDungeon active
-            int mainDamage = getDamageChar() + getDamageChange();
-            currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
-            setEnemyAttack(true);
+    public void attackScene(Runnable onEnemyDefeated) {
+        entity currentEnt = arrEnt.get(count());
+        int mainDamage = getDamageChar() + getDamageChange();
+        currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
+        setEnemyAttack(true);
 
-            if (shop.isPotionActive()) {
-                shop.increaseAttackCount(mainDamage);
-            }
+        if (shop.isPotionActive()) {
+            shop.increaseAttackCount(mainDamage);
+        }
 
-            if(currentEnt.getEntHP() <= 0){
-                statdisplay.getChildren().remove(statName);
-                statHP.setText(""); statATK.setText("ENTERING NEW ROOM"); statCoin.setText("");
-                nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
-                pause.setOnFinished(e->{
-                    refreshEntStat();
-                    currentEnt.setEntHP(0); coinWin();
-                    Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-                    refreshEntStat();
-                });
-                pause.play();
+        if (currentEnt.getEntHP() <= 0) {
+            refreshEntStat();
+            currentEnt.setEntHP(0);
+            coinWin();
+            Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
+            if (onEnemyDefeated != null) {
+                onEnemyDefeated.run();
             }
-            else {
-                statdisplay.getChildren().remove(statName);
-                statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
-                nameEnt.setText("...");statEntHP.setText("ATTACKING"); statEntATK.setText("...");
-                pause.setOnFinished(e->{
-                    statdisplay.getChildren().add(0, statName);
-                    refreshEntStat();
-                    refreshCharStat();
-                    entAttackScene(currentEnt);
-                });
-                pause.play();
-            }
-        }else{
-            alertWeapon();
+        } else {
+            statdisplay.getChildren().remove(statName);
+            statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
+            nameEnt.setText("..."); statEntHP.setText("ATTACKING"); statEntATK.setText("...");
+
+            pause.setOnFinished(e -> {
+                statdisplay.getChildren().add(0, statName);
+                refreshEntStat();
+                refreshCharStat();
+                entAttackScene(currentEnt);
+            });
+            pause.play();
         }
     }
 
-    public void defenseScene(){
-        if(getDamageChar() != 0){
-            displayPane.getChildren().clear();
-            buttonsButton.getChildren().clear();
+    public void defenseScene(Runnable onEnemyDefeated) {
+        displayPane.getChildren().clear();
+        buttonsButton.getChildren().clear();
 
-            Random rand = new Random();
-            entity currentEnt = arrEnt.get(count()); //if bossDungeon active
+        Random rand = new Random();
+        entity currentEnt = arrEnt.get(count());
 
-            int angka1 =  rand.nextInt(50);
-            int angka2 = rand.nextInt(50);
-            int answerGuess = angka1 + angka2;
+        int angka1 = rand.nextInt(50);
+        int angka2 = rand.nextInt(50);
+        int answerGuess = angka1 + angka2;
 
-            VBox answerDisplay = new VBox();
-            answerDisplay.setStyle("-fx-background-color: #D9D9D9");
-            answerDisplay.setPadding(new Insets(30, 10, 30, 10));
-            answerDisplay.setAlignment(Pos.CENTER);
-            answerDisplay.setMinSize(480, 200);
-            answerDisplay.setSpacing(5);
+        VBox answerDisplay = new VBox();
+        answerDisplay.setStyle("-fx-background-color: #D9D9D9");
+        answerDisplay.setPadding(new Insets(30, 10, 30, 10));
+        answerDisplay.setAlignment(Pos.CENTER);
+        answerDisplay.setMinSize(480, 200);
+        answerDisplay.setSpacing(5);
 
-            VBox defenseguess = comp.defenseGuess(angka1, angka2);
-            Button answerBut = comp.row2("ANSWER");
-            answerDisplay.getChildren().addAll(defenseguess, answerBut);
-            displayPane.getChildren().addAll(answerDisplay);
+        VBox defenseguess = comp.defenseGuess(angka1, angka2);
+        Button answerBut = comp.row2("ANSWER");
+        answerDisplay.getChildren().addAll(defenseguess, answerBut);
+        displayPane.getChildren().addAll(answerDisplay);
 
-            answerBut.setOnMouseClicked(e -> {
-                String input = comp.getAnswer();
-                if (input != null && !input.trim().isEmpty()) {
-                    int answer = Integer.parseInt(input);
-                    if(answer == answerGuess){
-                        defenseRNG.setText("YOU WIN");
-                        int mainDamage = getDamageChar() + getDamageChange();
-                        currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
-                        if(currentEnt.getEntHP() <= 0){
-                            statdisplay.getChildren().remove(statName);
-                            statHP.setText(""); statATK.setText("ENTERING NEW ROOM"); statCoin.setText("");
-                            nameEnt.setText("...");statEntHP.setText("STAGE CLEAR"); statEntATK.setText("...");
-                            pause.setOnFinished(e1->{
-                                refreshEntStat();
-                                currentEnt.setEntHP(0); coinWin();
-                                Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-                                refreshEntStat();
-                            });
-                            pause.play();
-                        } else {
-                            refreshEntStat();
-                            refreshCharStat();
-                            pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+        answerBut.setOnMouseClicked(e -> {
+            String input = comp.getAnswer();
+            if (input != null && !input.trim().isEmpty()) {
+                int answer = Integer.parseInt(input);
+                if (answer == answerGuess) {
+                    defenseRNG.setVisible(true);
+                    defenseRNG.setText("YOU WIN");
+                    int mainDamage = getDamageChar() + getDamageChange();
+                    currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
+
+                    if (currentEnt.getEntHP() <= 0) {
+                        currentEnt.setEntHP(0);
+                        coinWin();
+                        Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
+                        refreshEntStat();
+
+                        buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
+                        displayPane.getChildren().clear();
+                        displayPane.getChildren().addAll(display, winOrLose);
+
+                        if (onEnemyDefeated != null) {
+                            pause.setOnFinished(e2 -> onEnemyDefeated.run());
                             pause.play();
                         }
                     } else {
-                        defenseRNG.setText("YOU LOSE");
-                        setEnemyAttack(true);
+                        refreshEntStat();
                         refreshCharStat();
-
-                        pause.setOnFinished(e2 -> {
-                            defenseRNG.setVisible(false);
-                            entAttackScene(currentEnt);
-                        });
+                        pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
                         pause.play();
+
+                        entSkillScene(currentEnt);
+                        buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
+                        displayPane.getChildren().clear();
+                        displayPane.getChildren().addAll(display, winOrLose);
                     }
                 } else {
-                    defenseRNG.setText("Please enter a number!");
-                    pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                    defenseRNG.setVisible(true);
+                    defenseRNG.setText("YOU LOSE");
+                    setEnemyAttack(true);
+                    refreshCharStat();
+
+                    pause.setOnFinished(e2 -> {
+                        defenseRNG.setVisible(false);
+                        entAttackScene(currentEnt);
+                    });
                     pause.play();
+
+                    entSkillScene(currentEnt);
+                    buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
+                    displayPane.getChildren().clear();
+                    displayPane.getChildren().addAll(display, winOrLose);
                 }
-
-                entSkillScene(currentEnt);
-                buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
-                displayPane.getChildren().clear();
-                displayPane.getChildren().addAll(display,winOrLose);
-            });
-        }else{
-            alertWeapon();
-        }
-
+            } else {
+                defenseRNG.setVisible(true);
+                defenseRNG.setText("Please enter a number!");
+                pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
+                pause.play();
+            }
+        });
     }
 
     public void alertWeapon(){

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class bossEntityList {
     public ArrayList<entity> bossList(){
         ArrayList<entity> list = new ArrayList<>();
-        list.add(new entity("Zylnor", 800, 10));
-        list.add(new entity("Eryndra", 1000, 20));
+        list.add(new entity("Zylnor", 50, 10));
+        list.add(new entity("Eryndra", 1200, 20));
         list.add(new entity("Thraxxuss", 1400, 30));
         list.add(new entity("Kaelith", 1800, 40));
         list.add(new entity("Vrakthar", 2000, 50));

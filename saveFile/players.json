@@ -1,10 +1,10 @@
 [
   {
     "name": "BEGINNER",
-    "CharHP": 80,
-    "CharAtkLVL": 0,
-    "CharCoin": 100,
-    "enemyCount": 0
+    "CharHP": 90,
+    "CharAtkLVL": 1,
+    "CharCoin": 89,
+    "enemyCount": 1
   },
   {
     "name": "AVERAGE",
