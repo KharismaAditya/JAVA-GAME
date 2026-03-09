@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.player;
+import save_and_load.saveloadSystem;
 import ui.battleBOSS.dungeonBossDisplay;
 import ui.battleGRIND.dunGrinDisplay;
 import ui.dialogSCENE.dialogDisplay;
@@ -83,6 +84,8 @@ public class townhallDisplay {
         });
 
         exit.setOnAction(e->{
+            saveloadSystem save = new saveloadSystem();
+            save.addPlayer(mainchar);
             menuscene.setRoot(menuroot);
         });
 

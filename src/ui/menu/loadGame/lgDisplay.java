@@ -85,6 +85,9 @@ public class lgDisplay {
         Button load = new Button("PLAY");load.setFont(font);
         Button exit = new Button("EXIT");exit.setFont(font);
         load.setOnAction(e -> {
+            mainroot.getChildren().clear();
+            Label loadText = new Label("... LOAD PLAYER DATA ...");
+            mainroot.getChildren().add(loadText);
             pause.setOnFinished(e1->{
                 try {
                     stage.close();
@@ -99,6 +102,10 @@ public class lgDisplay {
         exit.setOnAction(e -> {
             stage.close();
         });
+
+        mainroot.getStylesheets().add(
+                getClass().getResource("/font/styles.css").toExternalForm()
+        );
 
         buttonLayer.getChildren().addAll(load,exit);
         mainroot.getChildren().addAll(playerInfo,buttonLayer);
