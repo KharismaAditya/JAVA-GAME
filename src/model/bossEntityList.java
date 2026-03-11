@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class bossEntityList {
     private static final String FILE = System.getProperty("user.dir") + "/JAVA-GAME/saveFile/bosses.csv";
+
     public ArrayList<entity> bossList() {
         ArrayList<entity> list = new ArrayList<>();
 
