@@ -232,9 +232,10 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
     public void entSkillScene(entity currentEnt) {
         Random rand = new Random();
-        int skillCount = rand.nextInt(5);
+        int skillCount = rand.nextInt(4);
+        System.out.println("skillCount: " + skillCount);
 
-        if (skillCount == 5) {
+        if (skillCount == 3) {
             bossSkills.skillList(this, Mainchar, currentEnt);
 
             statdisplay.getChildren().remove(statName);

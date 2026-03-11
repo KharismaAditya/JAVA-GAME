@@ -11,13 +11,20 @@
     "CharHP": 70,
     "CharAtkLVL": 1,
     "CharCoin": 71,
-    "enemyCount": 0
+    "enemyCount": 2
   },
   {
     "name": "ADVANCE",
     "CharHP": 86,
     "CharAtkLVL": 2,
     "CharCoin": 332,
-    "enemyCount": 0
+    "enemyCount": 3
+  },
+  {
+    "name": "tes",
+    "CharHP": 100,
+    "CharAtkLVL": 1,
+    "CharCoin": 60,
+    "enemyCount": 1
   }
 ]

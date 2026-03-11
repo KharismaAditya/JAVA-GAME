@@ -95,7 +95,7 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
     public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
         Stage stage = new Stage();
         System.out.println("Font loaded: " + font.getName());
-        setCurrent(randomEnt(3));
+        setCurrent(randomEnt(4));
         entity currentEnt = arrEnt.get(getCurrent());
         setTempHP(currentEnt.getEntHP());
 
@@ -266,15 +266,20 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
             }
 
             if(getTempHP() <= 0){
-                nameEnt.setText("...");statEntHP.setText("ENEMY DEFEAT"); statEntATK.setText("...");
-                pause.setOnFinished(e->{
+                nameEnt.setText("...");
+                statEntHP.setText("ENEMY DEFEAT");
+                statEntATK.setText("...");
+                setCurrent(randomEnt(4));
+                entity newEnt = arrEnt.get(getCurrent());
+                setTempHP(newEnt.getEntHP());
+
+                coinWin();
+
+                pause.setOnFinished(e -> {
                     refreshEntStat2();
                     refreshCharStat();
                 });
                 pause.play();
-                coinWin();
-                setCurrent(randomEnt(3));setTempHP(currentEnt.getEntHP());
-                refreshEntStat2();refreshCharStat();
             }
             refreshEntStat2();
         }else{
@@ -318,8 +323,13 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
                         if(getTempHP() <= 0){
                             pause.play();
                             coinWin();
-                            setCurrent(randomEnt(3));setTempHP(currentEnt.getEntHP());
-                            refreshEntStat2();refreshCharStat();
+
+                            setCurrent(randomEnt(4));
+                            entity newEnt = arrEnt.get(getCurrent());
+                            setTempHP(newEnt.getEntHP());
+
+                            refreshEntStat2();
+                            refreshCharStat();
                         } else {
                             refreshEntStat2();refreshCharStat();
                             pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
