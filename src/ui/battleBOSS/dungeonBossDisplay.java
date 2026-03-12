@@ -45,7 +45,9 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
 
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
-
+    private Scene menuScene;
+    private Parent menuRoot;
+    private HBox DisplayRoot;
 
     HBox display = new HBox();
     HBox winOrLose = new HBox();
@@ -97,12 +99,14 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
 
     public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
-
+        this.menuScene = menuScene;
+        this.menuRoot = menuRoot;
         Stage stage = new Stage();
         System.out.println("Font loaded: " + font.getName());
         entity currentEnt = arrEnt.get(count()); //if bossDungeon active
 
         HBox mainroot = new HBox();
+        this.DisplayRoot = mainroot;
         VBox root = new VBox();
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(15, 20, 5, 20));
@@ -211,6 +215,11 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             Mainchar.setCharHP(Mainchar.getCharHP() - currentEnt.getEntAtk());
             refreshCharStat();
 
+            if (Mainchar.getCharHP() <= 0) {
+                playerDefeat(menuScene, menuRoot, DisplayRoot);
+                return;
+            }
+
             statdisplay.getChildren().remove(statName);
             statHP.setText("");
             statATK.setText("ENEMY ATTACKING");
@@ -232,10 +241,10 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
     public void entSkillScene(entity currentEnt) {
         Random rand = new Random();
-        int skillCount = rand.nextInt(4);
+        int skillCount = rand.nextInt(3);
         System.out.println("skillCount: " + skillCount);
 
-        if (skillCount == 3) {
+        if (skillCount == 2) {
             bossSkills.skillList(this, Mainchar, currentEnt);
 
             statdisplay.getChildren().remove(statName);
@@ -249,6 +258,10 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             pause.setOnFinished(e -> {
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
+                if (Mainchar.getCharHP() <= 0) {
+                    playerDefeat(menuScene, menuRoot, DisplayRoot);
+                    return;
+                }
                 refreshEntStat();
                 statATK.setText("ATK: " + getDamageChar());
             });
@@ -455,6 +468,35 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
                 pause.play();
             }
         });
+    }
+    public void playerDefeat(Scene menuScene, Parent menuRoot, HBox DisplayRoot) {
+        if (Mainchar.getCharHP() <= 0) {
+            Mainchar.setCharHP(0);
+            refreshCharStat();
+
+            Label defeatLabel = new Label("YOU DIED...");
+            defeatLabel.setFont(font);
+            defeatLabel.setStyle("-fx-text-fill: red;");
+
+            DisplayRoot.getChildren().clear();
+            DisplayRoot.setAlignment(Pos.CENTER);
+            DisplayRoot.getChildren().add(defeatLabel);
+
+            buttonsButton.setVisible(false);
+
+            PauseTransition defeatPause = new PauseTransition(Duration.seconds(2));
+            defeatPause.setOnFinished(e -> {
+                if (Mainchar.getEnemyCount() > 0) {
+                    Mainchar.setEnemyCount(Mainchar.getEnemyCount() - 1);
+                }
+                arrEnt.get(Mainchar.getEnemyCount()).setEntHP(
+                        new bossEntityList().bossList().get(Mainchar.getEnemyCount()).getEntHP()
+                );
+
+                menuScene.setRoot(menuRoot);
+            });
+            defeatPause.play();
+        }
     }
 
     public void alertWeapon(){

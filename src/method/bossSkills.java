@@ -9,6 +9,7 @@ public class bossSkills {
     public bossSkills(CharDamageMain charDamageMain) {
         this.charDamageMain = charDamageMain;
     }
+    int countSkill = 0;
 
     public void skillList(dungeonBossDisplay display, player player, entity boss) {
         switch (display.count()){
@@ -33,31 +34,32 @@ public class bossSkills {
         return null;
     }
 
-    //FIRE STRUCK//
+    //FIRE STRUCK// player -20HP (type1,20,0)
     public void ZylnorSkills(player player) {
         player.setCharHP(player.getCharHP() - 20);
     }
 
-    //ONE MORE TIME
+    //ONE MORE TIME// boss +200 hp (type2,200,0)
     public void  EryndraSkills(entity boss) {
         boss.setEntHP(boss.getEntHP() + 200);
     }
 
-    //BONE OF STEEL
+    //BONE OF STEEL// boss +50 hp +10 atk (type3,50,10)
     public void ThraxxussSkills(entity boss) {
         boss.setEntHP(boss.getEntHP() + 50); boss.setEntAtk(boss.getEntAtk() + 10);
     }
 
-    //WHAT'S WRONG WITH ME?
+    //WHAT'S WRONG WITH ME? boss x10 hp + boss x10atk
     public void KaelithSkills(entity boss) {
         boolean active = true;
         if(active){
             boss.setEntHP(boss.getEntAtk() * 10); boss.setEntAtk(boss.getEntHP() * 10);
-            active = false;
+            countSkill += 1;
         }
-        if(!active){
-            boss.setEntHP(100); boss.setEntAtk(10);
+        if(countSkill == 2){
+            boss.setEntHP(600); boss.setEntAtk(40);
             active = true;
+            countSkill = 0;
         }
     }
 
@@ -65,10 +67,12 @@ public class bossSkills {
     public void VrakhtarSkills(player player) {
         boolean active = true;
         if(active){
-            player.setCharHP(10); active = false;
-        }if(!active){
+            player.setCharHP(10);
+            countSkill += 1;
+        }if(countSkill == 2){
             player.setCharHP(100); player.setCharCoin(player.getCharCoin() + 100);
             active = true;
+            countSkill = 0;
         }
     }
 
@@ -76,10 +80,11 @@ public class bossSkills {
         boolean active = true;
         if(active){
             player.setCharHP(1); charDamageMain.setDamageChar(1);player.setCharCoin(1);
-            active = false;
-        }if(!active){
+            countSkill += 1;
+        }if(countSkill == 2){
             player.setCharHP(200); charDamageMain.setDamageChar(player.getCharDamage(player.getCharAtkLVL()));player.setCharCoin(200);
             active = true;
+            countSkill = 0;
         }
     }
 
