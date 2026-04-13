@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -29,10 +30,14 @@ public class weaponDisplay {
     VBox item1 = comp.labelItem("DULL BLADE");
     VBox item2 = comp.labelItem("GREATSWORD");
     VBox item3 = comp.labelItem("EXCALIBUR");
+    VBox item4 = comp.labelItem("PROTOTYPE#1");
+    VBox item5 = comp.labelItem("PROTOTYPE#2");
 
     Button use1 = comp.equipButton();
     Button use2 = comp.equipButton();
     Button use3 = comp.equipButton();
+    Button use4 = comp.equipButton();
+    Button use5 = comp.equipButton();
     Button exit = comp.ExitButton();
 
     public VBox WEAPON(player mainchar, Scene mainscene, Parent mainroot){
@@ -47,25 +52,56 @@ public class weaponDisplay {
         Button exit = comp.ExitButton();
         upsection.getChildren().add(exit);
 
-        HBox middleSection = new HBox(); middleSection.setMinSize(520,196);
-        middleSection.setAlignment(Pos.CENTER);
-        middleSection.setPadding(new Insets(16,44,0,44));
-        middleSection.setSpacing(43);
+        VBox weapon1 = new VBox(10);
+        weapon1.setAlignment(Pos.CENTER);
+        weapon1.getChildren().addAll(item1, use1);
 
-        HBox middleSection2 = new HBox(); middleSection2.setMinSize(520,65);
-        middleSection2.setAlignment(Pos.CENTER);
-        middleSection2.setPadding(new Insets(16,44,16,44));
-        middleSection2.setSpacing(43);
+        VBox weapon2 = new VBox(10);
+        weapon2.setAlignment(Pos.CENTER);
+        weapon2.getChildren().addAll(item2, use2);
 
-        if(mainchar.getCharAtkLVL() >= 0){middleSection.getChildren().add(item1);
-            middleSection2.getChildren().add(use1);}
-        if(mainchar.getCharAtkLVL() >= 1){middleSection.getChildren().add(item2);
-            middleSection2.getChildren().add(use2);}
-        if (mainchar.getCharAtkLVL() >= 2){middleSection.getChildren().add(item3);
-            middleSection2.getChildren().add(use3);}
+        VBox weapon3 = new VBox(10);
+        weapon3.setAlignment(Pos.CENTER);
+        weapon3.getChildren().addAll(item3, use3);
+
+        VBox weapon4 = new VBox(10);
+        weapon4.setAlignment(Pos.CENTER);
+        weapon4.getChildren().addAll(item4, use4);
+
+        VBox weapon5 = new VBox(10);
+        weapon5.setAlignment(Pos.CENTER);
+        weapon5.getChildren().addAll(item5, use5);
+
+
+        HBox weaponContainer = new HBox(43);
+        weaponContainer.setAlignment(Pos.CENTER_LEFT);
+        weaponContainer.setPadding(new Insets(16, 44, 16, 44));
+
+        if (mainchar.getCharAtkLVL() >= 0) weaponContainer.getChildren().add(weapon1);
+        if (mainchar.getCharAtkLVL() >= 1) weaponContainer.getChildren().add(weapon2);
+        if (mainchar.getCharAtkLVL() >= 2) weaponContainer.getChildren().add(weapon3);
+        if (mainchar.getCharAtkLVL() >= 3) weaponContainer.getChildren().add(weapon4);
+        if (mainchar.getCharAtkLVL() >= 4) weaponContainer.getChildren().add(weapon5);
+
+        VBox scrollContent = new VBox();
+        scrollContent.getChildren().addAll(weaponContainer);
+
+        ScrollPane scrollPane = new ScrollPane(scrollContent);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setFitToWidth(false);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setMinSize(520, 261);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        scrollPane.setOnScroll(e -> {
+            double delta = e.getDeltaX() != 0 ? e.getDeltaX() : e.getDeltaY();
+            scrollPane.setHvalue(scrollPane.getHvalue() - delta * 0.001);
+            e.consume();
+        });
 
         HBox downSection = new HBox(); downSection.setMinSize(520,50);
-        root.getChildren().addAll(upsection,middleSection,middleSection2,downSection);
+        root.getChildren().addAll(upsection,scrollPane,downSection);
 
 
         use1.setOnMouseClicked(e -> {
