@@ -87,17 +87,22 @@ public class weaponDisplay {
         scrollContent.getChildren().addAll(weaponContainer);
 
         ScrollPane scrollPane = new ScrollPane(scrollContent);
+
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setFitToWidth(false);
         scrollPane.setFitToHeight(true);
-        scrollPane.setMinSize(520, 261);
+
+        scrollPane.setMinSize(520, 260);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
 
-        scrollPane.setOnScroll(e -> {
-            double delta = e.getDeltaX() != 0 ? e.getDeltaX() : e.getDeltaY();
-            scrollPane.setHvalue(scrollPane.getHvalue() - delta * 0.001);
-            e.consume();
+        scrollPane.setOnScroll(event -> {
+            double deltaY = event.getDeltaY();
+            scrollPane.setHvalue(scrollPane.getHvalue() - deltaY / scrollPane.getContent().getBoundsInLocal().getWidth());
+            event.consume();
+        });
+
+        scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+            scrollPane.setVvalue(0);
         });
 
         HBox downSection = new HBox(); downSection.setMinSize(520,50);

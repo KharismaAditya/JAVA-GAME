@@ -3,6 +3,7 @@ package ui.skills;
 import com.sun.tools.javac.Main;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.StageStyle;
 import method.*;
@@ -44,20 +45,45 @@ public class skillsDisplay {
         upsection.setPadding(new Insets(10,14,10,14));
         upsection.getChildren().add(exit);
 
-        HBox middleSection = new HBox(); middleSection.setMinSize(520,196);
-        middleSection.setAlignment(Pos.CENTER);
-        middleSection.setPadding(new Insets(16,44,0,44));
-        middleSection.setSpacing(43);
-        middleSection.getChildren().addAll(item1,item2,item3);
+        VBox skills1 = new VBox(10); skills1.setAlignment(Pos.CENTER);
+        skills1.getChildren().addAll(item1,buy1);
 
-        HBox middleSection2 = new HBox(); middleSection2.setMinSize(520,65);
-        middleSection2.setAlignment(Pos.CENTER);
-        middleSection2.setPadding(new Insets(16,44,16,44));
-        middleSection2.setSpacing(43);
-        middleSection2.getChildren().addAll(buy1,buy2,buy3);
+        VBox skills2 = new VBox(10); skills2.setAlignment(Pos.CENTER);
+        skills2.getChildren().addAll(item2,buy2);
+
+        VBox skills3 = new VBox(10); skills3.setAlignment(Pos.CENTER);
+        skills3.getChildren().addAll(item3,buy3);
+
+        HBox skillsContainer = new  HBox(43);
+        skillsContainer.setAlignment(Pos.CENTER_LEFT);
+        skillsContainer.setPadding(new Insets(16, 44, 16, 44));
+        skillsContainer.getChildren().addAll(skills1,skills2,skills3);
+
+        VBox scrollContent = new VBox();
+        scrollContent.getChildren().addAll(skillsContainer);
+
+        ScrollPane scrollPane = new ScrollPane(scrollContent);
+
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setFitToHeight(true);
+
+        scrollPane.setMinSize(520, 260);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        scrollPane.setOnScroll(event -> {
+            double deltaY = event.getDeltaY();
+            scrollPane.setHvalue(scrollPane.getHvalue() - deltaY / scrollPane.getContent().getBoundsInLocal().getWidth());
+            event.consume();
+        });
+
+        scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+            scrollPane.setVvalue(0);
+        });
+
 
         HBox downSection = new HBox(); downSection.setMinSize(520,50);
-        root.getChildren().addAll(upsection,middleSection,middleSection2,downSection);
+        root.getChildren().addAll(upsection,scrollPane,downSection);
 
         buy1.setOnAction(e -> {skill1Effect(MainChar, enemy);});
         buy2.setOnAction(e -> {skill2Effect(MainChar, enemy);});

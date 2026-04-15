@@ -2,6 +2,7 @@ package ui.shop;
 
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ScrollPane;
 import method.*;
 import model.*;
 
@@ -50,20 +51,44 @@ public class shopDisplay {
         Button exit = comp.ExitButton();
         upsection.getChildren().add(exit);
 
-        HBox middleSection = new HBox(); middleSection.setMinSize(520,196);
-        middleSection.setAlignment(Pos.CENTER);
-        middleSection.setPadding(new Insets(16,44,0,44));
-        middleSection.setSpacing(43);
-        middleSection.getChildren().addAll(item1,item2,item3);
+        VBox shop1 = new VBox(10); shop1.setAlignment(Pos.CENTER);
+        shop1.getChildren().addAll(item1,buy1);
 
-        HBox middleSection2 = new HBox(); middleSection2.setMinSize(520,65);
-        middleSection2.setAlignment(Pos.CENTER);
-        middleSection2.setPadding(new Insets(16,44,16,44));
-        middleSection2.setSpacing(43);
-        middleSection2.getChildren().addAll(buy1,buy2,buy3);
+        VBox shop2 = new VBox(10); shop2.setAlignment(Pos.CENTER);
+        shop2.getChildren().addAll(item2,buy2);
+
+        VBox shop3 = new VBox(10); shop3.setAlignment(Pos.CENTER);
+        shop3.getChildren().addAll(item3,buy3);
+
+        HBox shopItemContainer = new  HBox(43);
+        shopItemContainer.setAlignment(Pos.CENTER_LEFT);
+        shopItemContainer.setPadding(new Insets(16, 44, 16, 44));
+        shopItemContainer.getChildren().addAll(shop1,shop2,shop3);
+
+        VBox scrollContent = new VBox();
+        scrollContent.getChildren().addAll(shopItemContainer);
+
+        ScrollPane scrollPane = new ScrollPane(scrollContent);
+
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setFitToHeight(true);
+
+        scrollPane.setMinSize(520, 260);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        scrollPane.setOnScroll(event -> {
+            double deltaY = event.getDeltaY();
+            scrollPane.setHvalue(scrollPane.getHvalue() - deltaY / scrollPane.getContent().getBoundsInLocal().getWidth());
+            event.consume();
+        });
+
+        scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+            scrollPane.setVvalue(0);
+        });
 
         HBox downSection = new HBox(); downSection.setMinSize(520,50);
-        root.getChildren().addAll(upsection,middleSection,middleSection2,downSection);
+        root.getChildren().addAll(upsection,scrollPane,downSection);
 
 
         buy1.setOnMouseClicked(e -> {breadEffect(mainchar);});
