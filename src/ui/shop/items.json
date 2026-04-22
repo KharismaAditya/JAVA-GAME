@@ -1,0 +1,26 @@
+[
+  {
+    "id": "bread",
+    "name": "BREAD",
+    "price": 30,
+    "effectType": "heal",
+    "effectValue": 30,
+    "effectDescription": "PLAYER HP + 30"
+  },
+  {
+    "id": "steak",
+    "name": "STEAK",
+    "price": 50,
+    "effectType": "heal",
+    "effectValue": 50,
+    "effectDescription": "PLAYER HP + 50"
+  },
+  {
+    "id": "magic_potion",
+    "name": "MAGIC POTION",
+    "price": 70,
+    "effectType": "damage_boost",
+    "effectValue": 50,
+    "effectDescription": "PLAYER DAMAGE +50"
+  }
+]

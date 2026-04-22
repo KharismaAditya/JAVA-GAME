@@ -41,6 +41,8 @@ public class weaponDisplay {
     Button exit = comp.ExitButton();
 
     public VBox WEAPON(player mainchar, Scene mainscene, Parent mainroot){
+        weaponReader wr = new weaponReader(mainchar);
+
         Stage stage = new Stage();
         VBox root = new VBox();
         root.setStyle("-fx-background-color: #FFFFFF;");
@@ -110,15 +112,15 @@ public class weaponDisplay {
 
 
         use1.setOnMouseClicked(e -> {
-            charDamage.setDamageChar(100);alert("DULL BLADE");
+            charDamage.setDamageChar(wr.getDamageChange(1));alert(wr.getName(1));
             refresh.refreshCharStat();mainscene.setRoot(mainroot);activePane.setActivePane(false);
         });
         use2.setOnMouseClicked(e -> {
-            charDamage.setDamageChar(150); alert("GREATSWORD");
+            charDamage.setDamageChar(wr.getDamageChange(2));alert(wr.getName(2));
             refresh.refreshCharStat();mainscene.setRoot(mainroot);activePane.setActivePane(false);
         });
         use3.setOnMouseClicked(e -> {
-            charDamage.setDamageChar(200); alert("EXCALIBUR");
+            charDamage.setDamageChar(wr.getDamageChange(3));alert(wr.getName(3));
             refresh.refreshCharStat();mainscene.setRoot(mainroot);activePane.setActivePane(false);
         });
         exit.setOnMouseClicked(e -> {
