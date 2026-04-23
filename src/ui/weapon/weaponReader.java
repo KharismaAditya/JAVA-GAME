@@ -49,4 +49,34 @@ public class weaponReader {
         }
         return "null";
     }
+
+    public boolean thereIsWeaponOnMyFileBLyat001niggaanjingmemek(){
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            String line;
+            while ((line = br.readLine()) != null){
+                return true;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public String getListWeapon(int damageChar){
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            String line;
+            while((line = br.readLine()) != null){
+                String[] data = line.split(",");
+                if(damageChar == Integer.parseInt(data[1])){
+                    return data[0];
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return "NULL";
+    }
 }

@@ -5,6 +5,7 @@ import method.Refreshable;
 import method.potionDamageChangeTemp;
 import model.*;
 
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Objects;
 public class ItemLoader {
     private final potionDamageChangeTemp temp;
     private final Refreshable refresh;
+    private final String filepath = System.getProperty("user.dir") + "/JAVA-GAME/saveFile/Items.json";
 
     public ItemLoader(potionDamageChangeTemp temp, Refreshable refresh) {
         this.temp = temp;
@@ -22,20 +24,19 @@ public class ItemLoader {
     public List<ShopItem> loadItems() {
         List<ShopItem> items = new ArrayList<>();
 
-        try (InputStreamReader reader = new InputStreamReader(
-                Objects.requireNonNull(getClass().getResourceAsStream("items.json")))) {
+        try (FileReader reader = new FileReader(filepath)) {
 
             JsonArray array = JsonParser.parseReader(reader).getAsJsonArray();
 
             for (JsonElement el : array) {
                 JsonObject obj = el.getAsJsonObject();
 
-                String id          = obj.get("id").getAsString();
-                String name        = obj.get("name").getAsString();
-                int price          = obj.get("price").getAsInt();
-                String effectType  = obj.get("effectType").getAsString();
-                int effectValue    = obj.get("effectValue").getAsInt();
-                String effectDesc  = obj.get("effectDescription").getAsString();
+                String id         = obj.get("id").getAsString();
+                String name       = obj.get("name").getAsString();
+                int price         = obj.get("price").getAsInt();
+                String effectType = obj.get("effectType").getAsString();
+                int effectValue   = obj.get("effectValue").getAsInt();
+                String effectDesc = obj.get("effectDescription").getAsString();
 
                 ItemEffect effect = resolveEffect(effectType, effectValue, id);
                 items.add(new ShopItem(id, name, price, effectDesc, effect));

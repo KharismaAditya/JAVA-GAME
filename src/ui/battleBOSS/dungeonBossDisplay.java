@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import ui.skills.skillsDisplay;
 import ui.weapon.weaponDisplay;
+import ui.weapon.weaponReader;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -509,10 +510,10 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     }
 
     public String weaponType(){
-        if(getDamageChar() == 0){return "not selected";}
-        if(getDamageChar() == 100){return "DULL BLADE";}
-        if(getDamageChar() == 150){return "GREAT SWORD";}
-        if(getDamageChar() == 200){return "EXCALIBUR";}
+        weaponReader wr = new weaponReader(Mainchar);
+        if(wr.thereIsWeaponOnMyFileBLyat001niggaanjingmemek()){
+            return wr.getListWeapon(getDamageChar());
+        }
         return "ERROR";
     }
 
