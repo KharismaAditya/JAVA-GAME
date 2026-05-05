@@ -38,7 +38,6 @@ public class shopDisplay {
         root.setStyle("-fx-background-color: #FFFFFF;");
         root.setMinSize(520, 360);
 
-        // --- Top bar (exit button) ---
         HBox upsection = new HBox();
         upsection.setMinSize(520, 50);
         upsection.setAlignment(Pos.CENTER_RIGHT);
@@ -47,7 +46,6 @@ public class shopDisplay {
         Button exit = comp.ExitButton();
         upsection.getChildren().add(exit);
 
-        // --- Load items dari JSON dan build UI secara dinamis ---
         ItemLoader loader = new ItemLoader(temp, refresh);
         List<ShopItem> items = loader.loadItems();
 
@@ -70,7 +68,6 @@ public class shopDisplay {
         scrollPane.setMinSize(520, 260);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
 
-        // Ubah scroll vertikal menjadi horizontal
         scrollPane.setOnScroll(event -> {
             double deltaY = event.getDeltaY();
             scrollPane.setHvalue(
@@ -86,7 +83,6 @@ public class shopDisplay {
 
         root.getChildren().addAll(upsection, scrollPane, downSection);
 
-        // --- Exit action ---
         exit.setOnMouseClicked(e -> {
             mainscene.setRoot(mainroot);
             activePane.setActivePane(false);

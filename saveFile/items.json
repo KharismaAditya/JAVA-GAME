@@ -22,5 +22,13 @@
     "effectType": "damage_boost",
     "effectValue": 50,
     "effectDescription": "PLAYER DAMAGE +50"
+  },
+  {
+    "id": "katsu_kasri",
+    "name" : "KATSU KASRI",
+    "price" : 130,
+    "effectType": "heal",
+    "effectValue": 100,
+    "effectDescription": "PLAYER HP + 100"
   }
 ]
