@@ -1,7 +1,7 @@
 package ui.battleGRIND;
+
 import javafx.animation.PauseTransition;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -25,26 +25,32 @@ import ui.weapon.weaponDisplay;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain{
+public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain {
+
     Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
 
-    dunBossComp comp = new dunBossComp();
-    shopDisplay shop = new shopDisplay(this, this, this);
-    skillsDisplay skills = new skillsDisplay(this, this);
-    weaponDisplay weapons = new weaponDisplay(this,this,this);
+    dunBossComp comp  = new dunBossComp();
+    shopDisplay shop  = new shopDisplay(this, this, this);
+    skillsDisplay skills   = new skillsDisplay(this, this);
+    weaponDisplay weapons  = new weaponDisplay(this, this, this);
 
-    boolean activePane = false;
+    // ── Handler yang dipisahkan ──────────────────────────────────────────────
+    AttackHandler  attackHandler;
+    DefenseHandler defenseHandler;
+    // ────────────────────────────────────────────────────────────────────────
+
+    boolean activePane   = false;
     private boolean enemyAttack = false;
 
-    player Mainchar;   // ✅ player dari ngDisplay
-    //if bossDungeon active
+    player Mainchar;
     dungeonEntityList enmList = new dungeonEntityList();
-    ArrayList<entity> arrEnt = enmList.dungeonList();
+    ArrayList<entity> arrEnt  = enmList.dungeonList();
 
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
 
-    HBox display = new HBox();
-    HBox winOrLose = new HBox();
+    // UI nodes — diakses oleh handler (package-private)
+    HBox      display     = new HBox();
+    HBox      winOrLose   = new HBox();
     StackPane displayPane = new StackPane();
 
     Label defenseRNG;
@@ -52,7 +58,7 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
     Label statEntHP;
     Label statEntATK;
 
-    HBox statdisplay = new HBox();
+    HBox  statdisplay = new HBox();
     Label statName;
     Label statHP;
     Label statATK;
@@ -60,8 +66,8 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
     Label savingFile = new Label("SAVING...");
 
     VBox buttonsButton = new VBox();
-    HBox buttonsRow1 = new HBox();
-    HBox buttonsRow2 = new HBox();
+    HBox buttonsRow1   = new HBox();
+    HBox buttonsRow2   = new HBox();
 
     Button row1col1 = comp.row1("ATTACK");
     Button row1col2 = comp.row1("DEFENSE");
@@ -71,27 +77,30 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
     Button row2col2 = comp.row1("SKILLS");
     Button row2col3 = comp.row1("WEAPONS");
 
-    // ✅ Constructor menerima player
     public dunGrinDisplay(player Mainchar) {
         this.Mainchar = Mainchar;
+        // Buat handler setelah field diinisialisasi
+        this.attackHandler  = new AttackHandler(this, this, this);
+        this.defenseHandler = new DefenseHandler(this, this, this, comp);
     }
+
     private int damagePotion = 0;
     private int damageChar;
 
-
-    @Override
-    public boolean getActivePane() { return activePane; }
+    // ── ActivePane ───────────────────────────────────────────────────────────
+    @Override public boolean getActivePane() { return activePane; }
     public void setActivePane(boolean activePane) {
         this.activePane = activePane;
         buttonsButton.setVisible(!activePane);
     }
 
-    public boolean isEnemyAttack() { return enemyAttack; }
-    public void setEnemyAttack(boolean enemyAttack) { this.enemyAttack = enemyAttack; }
+    public boolean isEnemyAttack()                  { return enemyAttack; }
+    public void    setEnemyAttack(boolean v)        { this.enemyAttack = v; }
 
     private int current;
     private int tempHP;
 
+    // ── Scene utama ──────────────────────────────────────────────────────────
     public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
         Stage stage = new Stage();
         System.out.println("Font loaded: " + font.getName());
@@ -100,7 +109,7 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
         setTempHP(currentEnt.getEntHP());
 
         HBox mainroot = new HBox();
-        VBox root = new VBox();
+        VBox root     = new VBox();
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(15, 20, 5, 20));
         root.setStyle("-fx-background-color: #FFFFFF");
@@ -118,8 +127,8 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
 
         display.setAlignment(Pos.BOTTOM_CENTER);
         display.setSpacing(30);
-        nameEnt = new Label(arrEnt.get(getCurrent()).getEntName());
-        statEntHP = new Label("Enemy HP: " + getTempHP());
+        nameEnt    = new Label(arrEnt.get(getCurrent()).getEntName());
+        statEntHP  = new Label("Enemy HP: " + getTempHP());
         statEntATK = new Label("Enemy ATK: " + arrEnt.get(getCurrent()).getEntAtk());
         display.getChildren().addAll(nameEnt, statEntHP, statEntATK);
 
@@ -130,10 +139,10 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
         statdisplay.setAlignment(Pos.CENTER);
         statdisplay.setSpacing(30);
 
-        statName = new Label(Mainchar.getName());
-        statHP = new Label("HP: " + Mainchar.getCharHP());
-        statATK = new Label("WEAPON: " + weaponType());
-        statCoin = new Label("Coin: " + Mainchar.getCharCoin());
+        statName  = new Label(Mainchar.getName());
+        statHP    = new Label("HP: " + Mainchar.getCharHP());
+        statATK   = new Label("WEAPON: " + weaponType());
+        statCoin  = new Label("Coin: " + Mainchar.getCharCoin());
         statdisplay.getChildren().addAll(statName, statHP, statATK, statCoin);
 
         buttonsRow1.setMinSize(480, 60);
@@ -151,24 +160,25 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
 
         root.getChildren().addAll(displayPane, buttonsButton, statdisplay);
         mainroot.getChildren().add(root);
-
         mainroot.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
 
-        row1col1.setOnMouseClicked(e -> { attackScene(); });
-        row1col2.setOnMouseClicked(e -> { defenseScene(); });
+        // ── Button listeners ────────────────────────────────────────────────
+        row1col1.setOnMouseClicked(e -> attackHandler.execute(arrEnt, pause, shop));
+        row1col2.setOnMouseClicked(e -> defenseHandler.execute(arrEnt, pause));
+
         row1col3.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
-                menuScene.setRoot(shop.SHOP(Mainchar,menuScene,mainroot));
+                menuScene.setRoot(shop.SHOP(Mainchar, menuScene, mainroot));
             }
         });
 
         row2col3.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
-                menuScene.setRoot(weapons.WEAPON(Mainchar,menuScene,mainroot));
+                menuScene.setRoot(weapons.WEAPON(Mainchar, menuScene, mainroot));
             }
         });
 
@@ -177,14 +187,12 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
             mainroot.getChildren().clear();
             mainroot.setAlignment(Pos.CENTER);
             mainroot.getChildren().add(savingFile);
-            pause.setOnFinished(e1 ->{
+            pause.setOnFinished(e1 -> {
                 save.addPlayer(Mainchar);
                 menuScene.setRoot(menuRoot);
             });
-
             pause.play();
         });
-
 
         row2col2.setOnMouseClicked(e -> {
             if (!getActivePane()) {
@@ -193,11 +201,11 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
             }
         });
 
-
         stage.setResizable(false);
         return mainroot;
     }
 
+    // ── Helpers yang masih di sini karena dipakai oleh handler ──────────────
 
     public void entAttackScene(entity currentEnt) {
         if (isEnemyAttack()) {
@@ -222,192 +230,49 @@ public class dunGrinDisplay implements Refreshable, ActivePane, potionDamageChan
         }
     }
 
-    public int randomEnt(int a){
-        Random rand = new Random();
-        int setEny = rand.nextInt(a);
-        return setEny;
+    public int randomEnt(int a) {
+        return new Random().nextInt(a);
     }
 
-    public void coinWin(){
-        Random rand = new Random();
-        int coinReward = rand.nextInt(100);
+    public void coinWin() {
+        int coinReward = new Random().nextInt(100);
         Mainchar.setCharCoin(Mainchar.getCharCoin() + coinReward);
         refreshCharStat();
     }
 
     @Override
-    public void refreshCharStat(){
+    public void refreshCharStat() {
         statName.setText(Mainchar.getName());
         statHP.setText("HP: " + Mainchar.getCharHP());
         statATK.setText("WEAPON: " + weaponType());
         statCoin.setText("Coin: " + Mainchar.getCharCoin());
     }
 
-    @Override
-    public void refreshEntStat(){}
+    @Override public void refreshEntStat() {}
 
-    public void refreshEntStat2(){
+    public void refreshEntStat2() {
         entity currentEnt = arrEnt.get(getCurrent());
         nameEnt.setText(currentEnt.getEntName());
         statEntHP.setText("Enemy HP : " + getTempHP());
         statEntATK.setText("Enemy ATK: " + currentEnt.getEntAtk());
     }
 
-    public void attackScene(){
-        entity currentEnt = arrEnt.get(getCurrent());
-        if(getDamageChar() != 0){
-            int mainDamage = getDamageChar() + getDamageChange();
-            setTempHP(getTempHP() - mainDamage);
-            setEnemyAttack(true);
-            entAttackScene(arrEnt.get(getCurrent()));
-
-            if (shop.isPotionActive()) {
-                shop.increaseAttackCount(mainDamage);
-            }
-
-            if(getTempHP() <= 0){
-                nameEnt.setText("...");
-                statEntHP.setText("ENEMY DEFEAT");
-                statEntATK.setText("...");
-                setCurrent(randomEnt(4));
-                entity newEnt = arrEnt.get(getCurrent());
-                setTempHP(newEnt.getEntHP());
-
-                coinWin();
-
-                pause.setOnFinished(e -> {
-                    refreshEntStat2();
-                    refreshCharStat();
-                });
-                pause.play();
-            }
-            refreshEntStat2();
-        }else{
-            alertWeapon();
-        }
-    }
-
-    public void defenseScene(){
-        if(getDamageChar() != 0){
-            displayPane.getChildren().clear();
-            buttonsButton.getChildren().clear();
-
-            Random rand = new Random();
-            entity currentEnt = arrEnt.get(getCurrent());
-
-            int angka1 =  rand.nextInt(50);
-            int angka2 = rand.nextInt(50);
-            int answerGuess = angka1 + angka2;
-
-            VBox answerDisplay = new VBox();
-            answerDisplay.setStyle("-fx-background-color: #D9D9D9");
-            answerDisplay.setPadding(new Insets(30, 10, 30, 10));
-            answerDisplay.setAlignment(Pos.CENTER);
-            answerDisplay.setMinSize(480, 200);
-            answerDisplay.setSpacing(5);
-
-            VBox defenseguess = comp.defenseGuess(angka1, angka2);
-            Button answerBut = comp.row2("ANSWER");
-            answerDisplay.getChildren().addAll(defenseguess, answerBut);
-            displayPane.getChildren().addAll(answerDisplay);
-
-            answerBut.setOnMouseClicked(e -> {
-                String input = comp.getAnswer();
-                if (input != null && !input.trim().isEmpty()) {
-                    int answer = Integer.parseInt(input);
-                    if(answer == answerGuess){
-                        defenseRNG.setText("YOU WIN");
-                        int mainDamage = getDamageChar() + getDamageChange();
-                        setTempHP(getTempHP() - mainDamage);
-
-                        if(getTempHP() <= 0){
-                            pause.play();
-                            coinWin();
-
-                            setCurrent(randomEnt(4));
-                            entity newEnt = arrEnt.get(getCurrent());
-                            setTempHP(newEnt.getEntHP());
-
-                            refreshEntStat2();
-                            refreshCharStat();
-                        } else {
-                            refreshEntStat2();refreshCharStat();
-                            pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
-                            pause.play();
-                        }
-                        refreshEntStat2();
-                    } else {
-                        defenseRNG.setText("YOU LOSE");
-                        setEnemyAttack(true);
-                        refreshCharStat();
-                        pause.play();
-                    }
-                } else {
-                    defenseRNG.setText("Please enter a number!");
-                    pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
-                    pause.play();
-                }
-
-                buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
-                displayPane.getChildren().clear();
-                displayPane.getChildren().addAll(display,winOrLose);
-            });
-        }else{
-            alertWeapon();
-        }
-
-    }
-
-    public void alertWeapon(){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
-        alert.setContentText("SELECT WEAPON FIRST");
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-        alert.showAndWait();
-    }
-
-    public String weaponType(){
-        if(getDamageChar() == 0){return "not selected";}
-        if(getDamageChar() == 100){return "DULL BLADE";}
-        if(getDamageChar() == 150){return "GREAT SWORD";}
-        if(getDamageChar() == 200){return "EXCALIBUR";}
+    public String weaponType() {
+        if (getDamageChar() == 0)   return "not selected";
+        if (getDamageChar() == 100) return "DULL BLADE";
+        if (getDamageChar() == 150) return "GREAT SWORD";
+        if (getDamageChar() == 200) return "EXCALIBUR";
         return "ERROR";
     }
 
-    @Override
-    public int getDamageChange() {
-        return damagePotion;
-    }
+    // ── Interface implementations ────────────────────────────────────────────
+    @Override public int  getDamageChange()      { return damagePotion; }
+    @Override public void setDamageChange(int b) { this.damagePotion = b; }
+    @Override public int  getDamageChar()        { return damageChar; }
+    @Override public void setDamageChar(int b)   { this.damageChar = b; }
 
-    @Override
-    public void setDamageChange(int b) {
-        this.damagePotion = b;
-    }
-
-    @Override
-    public int getDamageChar() {
-        return damageChar;
-    }
-
-    @Override
-    public void setDamageChar(int b) {
-        this.damageChar = b;
-    }
-
-    public int getCurrent() {
-        return current;
-    }
-
-    public void setCurrent(int current) {
-        this.current = current;
-    }
-
-    public int getTempHP() {
-        return tempHP;
-    }
-
-    public void setTempHP(int tempHP) {
-        this.tempHP = tempHP;
-    }
+    public int  getCurrent()         { return current; }
+    public void setCurrent(int v)    { this.current = v; }
+    public int  getTempHP()          { return tempHP; }
+    public void setTempHP(int v)     { this.tempHP = v; }
 }

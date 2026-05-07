@@ -1,6 +1,5 @@
 package ui.battleBOSS;
 
-import com.sun.tools.javac.Main;
 import javafx.animation.PauseTransition;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
@@ -28,30 +27,36 @@ import ui.weapon.weaponReader;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain{
+public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamageChangeTemp, CharDamageMain {
+
     Font font = Font.loadFont(getClass().getResourceAsStream("/font/PressStart2P.ttf"), 9);
 
-    dunBossComp comp = new dunBossComp();
-    shopDisplay shop = new shopDisplay(this, this, this);
-    skillsDisplay skills = new skillsDisplay(this, this);
-    bossSkills bossSkills = new bossSkills(this);
-    weaponDisplay weapons = new weaponDisplay(this,this,this);
+    dunBossComp comp       = new dunBossComp();
+    shopDisplay shop       = new shopDisplay(this, this, this);
+    skillsDisplay skills   = new skillsDisplay(this, this);
+    bossSkills bossSkills  = new bossSkills(this);
+    weaponDisplay weapons  = new weaponDisplay(this, this, this);
 
-    boolean activePane = false;
+    // ── Handler yang dipisahkan ──────────────────────────────────────────────
+    BossAttackHandler  attackHandler;
+    BossDefenseHandler defenseHandler;
+    // ────────────────────────────────────────────────────────────────────────
+
+    boolean activePane      = false;
     private boolean enemyAttack = false;
 
     player Mainchar;
-    bossEntityList enmList = new bossEntityList();
-    ArrayList<entity> arrEnt = enmList.bossList();
-
+    bossEntityList enmList    = new bossEntityList();
+    ArrayList<entity> arrEnt  = enmList.bossList();
 
     PauseTransition pause = new PauseTransition(Duration.seconds(1));
-    private Scene menuScene;
+    private Scene  menuScene;
     private Parent menuRoot;
-    private HBox DisplayRoot;
+    private HBox   DisplayRoot;
 
-    HBox display = new HBox();
-    HBox winOrLose = new HBox();
+    // UI nodes — diakses oleh handler (package-private)
+    HBox      display     = new HBox();
+    HBox      winOrLose   = new HBox();
     StackPane displayPane = new StackPane();
 
     Label defenseRNG;
@@ -59,16 +64,16 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     Label statEntHP;
     Label statEntATK;
 
-    HBox statdisplay = new HBox();
+    HBox  statdisplay = new HBox();
     Label statName;
     Label statHP;
     Label statATK;
     Label statCoin;
-    Label savingFile = new Label("SAVING...");
+    Label savingFile  = new Label("SAVING...");
 
     VBox buttonsButton = new VBox();
-    HBox buttonsRow1 = new HBox();
-    HBox buttonsRow2 = new HBox();
+    HBox buttonsRow1   = new HBox();
+    HBox buttonsRow2   = new HBox();
 
     Button row1col1 = comp.row1("ATTACK");
     Button row1col2 = comp.row1("DEFENSE");
@@ -80,35 +85,36 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
     Label winBosses = new Label("... ENTERING NEW ROOM ...");
 
-    // ✅ Constructor menerima player
     public dungeonBossDisplay(player Mainchar) {
         this.Mainchar = Mainchar;
+        this.attackHandler  = new BossAttackHandler(this, this, this);
+        this.defenseHandler = new BossDefenseHandler(this, this, this, comp);
     }
+
     private int damagePotion = 0;
     private int damageChar;
 
-
-    @Override
-    public boolean getActivePane() { return activePane; }
+    // ── ActivePane ───────────────────────────────────────────────────────────
+    @Override public boolean getActivePane() { return activePane; }
     public void setActivePane(boolean activePane) {
         this.activePane = activePane;
         buttonsButton.setVisible(!activePane);
     }
 
-    public boolean isEnemyAttack() { return enemyAttack; }
-    public void setEnemyAttack(boolean enemyAttack) { this.enemyAttack = enemyAttack; }
+    public boolean isEnemyAttack()           { return enemyAttack; }
+    public void    setEnemyAttack(boolean v) { this.enemyAttack = v; }
 
-
+    // ── Scene utama ──────────────────────────────────────────────────────────
     public HBox start(Scene menuScene, Parent menuRoot) throws Exception {
-        this.menuScene = menuScene;
-        this.menuRoot = menuRoot;
-        Stage stage = new Stage();
+        this.menuScene  = menuScene;
+        this.menuRoot   = menuRoot;
+        Stage stage     = new Stage();
         System.out.println("Font loaded: " + font.getName());
-        entity currentEnt = arrEnt.get(count()); //if bossDungeon active
+        entity currentEnt = arrEnt.get(count());
 
-        HBox mainroot = new HBox();
-        this.DisplayRoot = mainroot;
-        VBox root = new VBox();
+        HBox mainroot     = new HBox();
+        this.DisplayRoot  = mainroot;
+        VBox root         = new VBox();
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(15, 20, 5, 20));
         root.setStyle("-fx-background-color: #FFFFFF");
@@ -126,8 +132,8 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
         display.setAlignment(Pos.BOTTOM_CENTER);
         display.setSpacing(30);
-        nameEnt = new Label(arrEnt.get(count()).getEntName());
-        statEntHP = new Label("Enemy HP: " + arrEnt.get(count()).getEntHP());
+        nameEnt    = new Label(arrEnt.get(count()).getEntName());
+        statEntHP  = new Label("Enemy HP: " + arrEnt.get(count()).getEntHP());
         statEntATK = new Label("Enemy ATK: " + arrEnt.get(count()).getEntAtk());
         display.getChildren().addAll(nameEnt, statEntHP, statEntATK);
 
@@ -138,10 +144,10 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
         statdisplay.setAlignment(Pos.CENTER);
         statdisplay.setSpacing(30);
 
-        statName = new Label(Mainchar.getName());
-        statHP = new Label("HP: " + Mainchar.getCharHP());
-        statATK = new Label("WEAPON: " + weaponType());
-        statCoin = new Label("Coin: " + Mainchar.getCharCoin());
+        statName  = new Label(Mainchar.getName());
+        statHP    = new Label("HP: " + Mainchar.getCharHP());
+        statATK   = new Label("WEAPON: " + weaponType());
+        statCoin  = new Label("Coin: " + Mainchar.getCharCoin());
         statdisplay.getChildren().addAll(statName, statHP, statATK, statCoin);
 
         buttonsRow1.setMinSize(480, 60);
@@ -159,28 +165,25 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
 
         root.getChildren().addAll(displayPane, buttonsButton, statdisplay);
         mainroot.getChildren().add(root);
-
         mainroot.getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
         );
 
-        row1col1.setOnMouseClicked(e -> {
-            dialogTransition1(menuScene,menuRoot, mainroot);
-        });
-        row1col2.setOnMouseClicked(e -> {
-            dialogTransition2(menuScene,menuRoot, mainroot);
-        });
+        // ── Button listeners ────────────────────────────────────────────────
+        row1col1.setOnMouseClicked(e -> dialogTransition1(menuScene, menuRoot, mainroot));
+        row1col2.setOnMouseClicked(e -> dialogTransition2(menuScene, menuRoot, mainroot));
+
         row1col3.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
-                menuScene.setRoot(shop.SHOP(Mainchar,menuScene,mainroot));
+                menuScene.setRoot(shop.SHOP(Mainchar, menuScene, mainroot));
             }
         });
 
         row2col3.setOnMouseClicked(e -> {
             if (!getActivePane()) {
                 setActivePane(true);
-                menuScene.setRoot(weapons.WEAPON(Mainchar,menuScene,mainroot));
+                menuScene.setRoot(weapons.WEAPON(Mainchar, menuScene, mainroot));
             }
         });
 
@@ -189,14 +192,12 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             mainroot.getChildren().clear();
             mainroot.setAlignment(Pos.CENTER);
             mainroot.getChildren().add(savingFile);
-            pause.setOnFinished(e1 ->{
+            pause.setOnFinished(e1 -> {
                 save.addPlayer(Mainchar);
                 menuScene.setRoot(menuRoot);
             });
-
             pause.play();
         });
-
 
         row2col2.setOnMouseClicked(e -> {
             if (!getActivePane()) {
@@ -205,11 +206,63 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             }
         });
 
-
         stage.setResizable(false);
         return mainroot;
     }
 
+    // ── Dialog transitions (wrapper dengan weapon check) ─────────────────────
+
+    public void dialogTransition1(Scene menuscene, Parent mainroot, HBox DisplayRoot) {
+        if (damageChar != 0) {
+            attackHandler.execute(arrEnt, pause, shop, () -> {
+                DisplayRoot.getChildren().clear();
+                DisplayRoot.getChildren().add(winBosses);
+                DisplayRoot.setAlignment(Pos.CENTER);
+
+                PauseTransition enterRoom = new PauseTransition(Duration.seconds(1.5));
+                enterRoom.setOnFinished(e -> {
+                    winningCondition();
+                    dialogDisplay dialog = new dialogDisplay();
+                    try {
+                        Parent dialogRoot = dialog.DIALOG(Mainchar, menuscene, mainroot);
+                        menuscene.setRoot(dialogRoot);
+                    } catch (Exception error) {
+                        error.printStackTrace();
+                    }
+                });
+                enterRoom.play();
+            });
+        } else {
+            alertWeapon();
+        }
+    }
+
+    public void dialogTransition2(Scene menuscene, Parent mainroot, HBox DisplayRoot) {
+        if (damageChar != 0) {
+            defenseHandler.execute(arrEnt, pause, () -> {
+                DisplayRoot.getChildren().clear();
+                DisplayRoot.getChildren().add(winBosses);
+                DisplayRoot.setAlignment(Pos.CENTER);
+
+                PauseTransition enterRoom = new PauseTransition(Duration.seconds(1.5));
+                enterRoom.setOnFinished(e -> {
+                    winningCondition();
+                    dialogDisplay dialog = new dialogDisplay();
+                    try {
+                        Parent dialogRoot = dialog.DIALOG(Mainchar, menuscene, mainroot);
+                        menuscene.setRoot(dialogRoot);
+                    } catch (Exception error) {
+                        error.printStackTrace();
+                    }
+                });
+                enterRoom.play();
+            });
+        } else {
+            alertWeapon();
+        }
+    }
+
+    // ── Logic yang masih di sini karena dipakai oleh handler ─────────────────
 
     public void entAttackScene(entity currentEnt) {
         if (isEnemyAttack()) {
@@ -233,7 +286,7 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
                 statdisplay.getChildren().add(0, statName);
                 refreshCharStat();
                 refreshEntStat();
-                entSkillScene(currentEnt); //if bossDungeon active
+                entSkillScene(currentEnt);
             });
             pause.play();
             setEnemyAttack(false);
@@ -241,8 +294,8 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     }
 
     public void entSkillScene(entity currentEnt) {
-        Random rand = new Random();
-        int skillCount = rand.nextInt(3);
+        Random rand       = new Random();
+        int skillCount    = rand.nextInt(3);
         System.out.println("skillCount: " + skillCount);
 
         if (skillCount == 2) {
@@ -268,208 +321,24 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             });
             pause.play();
         }
-
     }
 
-    //if bossDungeon active
-    public int count(){
-     return Mainchar.getEnemyCount();
+    public int count() {
+        return Mainchar.getEnemyCount();
     }
 
-    public void winningCondition(){
+    public void winningCondition() {
         Mainchar.setEnemyCount(Mainchar.getEnemyCount() + 1);
         System.out.println(Mainchar.getEnemyCount());
         refreshEntStat();
     }
 
-    public void dialogTransition1(Scene menuscene, Parent mainroot, HBox DisplayRoot) {
-        if (damageChar != 0) {
-            attackScene(() -> {
-                DisplayRoot.getChildren().clear();
-                DisplayRoot.getChildren().add(winBosses);
-                DisplayRoot.setAlignment(Pos.CENTER);
-
-                PauseTransition enterRoom = new PauseTransition(Duration.seconds(1.5));
-                enterRoom.setOnFinished(e -> {
-                    winningCondition();
-                    dialogDisplay dialog = new dialogDisplay();
-                    try {
-                        Parent dialogRoot = dialog.DIALOG(Mainchar, menuscene, mainroot);
-                        menuscene.setRoot(dialogRoot);
-                    } catch (Exception error) {
-                        error.printStackTrace();
-                    }
-                });
-                enterRoom.play();
-            });
-        } else {
-            alertWeapon();
-        }
-    }
-
-    public void dialogTransition2(Scene menuscene, Parent mainroot, HBox DisplayRoot) {
-        if (damageChar != 0) {
-            defenseScene(() -> {
-                DisplayRoot.getChildren().clear();
-                DisplayRoot.getChildren().add(winBosses);
-                DisplayRoot.setAlignment(Pos.CENTER);
-                PauseTransition enterRoom = new PauseTransition(Duration.seconds(1.5));
-                enterRoom.setOnFinished(e -> {
-                    winningCondition();
-                    dialogDisplay dialog = new dialogDisplay();
-                    try {
-                        Parent dialogRoot = dialog.DIALOG(Mainchar, menuscene, mainroot);
-                        menuscene.setRoot(dialogRoot);
-                    } catch (Exception error) {
-                        error.printStackTrace();
-                    }
-                });
-                enterRoom.play();
-            });
-        } else {
-            alertWeapon();
-        }
-    }
-
-    public void coinWin(){
-        Random rand = new Random();
-        int coinReward = rand.nextInt(100);
+    public void coinWin() {
+        int coinReward = new Random().nextInt(100);
         Mainchar.setCharCoin(Mainchar.getCharCoin() + coinReward);
         refreshCharStat();
     }
 
-    @Override
-    public void refreshCharStat(){
-        statName.setText(Mainchar.getName());
-        statHP.setText("HP: " + Mainchar.getCharHP());
-        statATK.setText("WEAPON: " + weaponType());
-        statCoin.setText("Coin: " + Mainchar.getCharCoin());
-    }
-
-    @Override
-    public void refreshEntStat(){
-        entity currentEnt = arrEnt.get(count());
-        nameEnt.setText(currentEnt.getEntName());
-        statEntHP.setText("Enemy HP : " + currentEnt.getEntHP());
-        statEntATK.setText("Enemy ATK: " + arrEnt.get(count()).getEntAtk());
-    }
-
-    public void attackScene(Runnable onEnemyDefeated) {
-        entity currentEnt = arrEnt.get(count());
-        int mainDamage = getDamageChar() + getDamageChange();
-        currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
-        setEnemyAttack(true);
-
-        if (shop.isPotionActive()) {
-            shop.increaseAttackCount(mainDamage);
-        }
-
-        if (currentEnt.getEntHP() <= 0) {
-            refreshEntStat();
-            currentEnt.setEntHP(0);
-            coinWin();
-            Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-            if (onEnemyDefeated != null) {
-                onEnemyDefeated.run();
-            }
-        } else {
-            statdisplay.getChildren().remove(statName);
-            statHP.setText(""); statATK.setText("ATTACKING"); statCoin.setText("");
-            nameEnt.setText("..."); statEntHP.setText("ATTACKING"); statEntATK.setText("...");
-
-            pause.setOnFinished(e -> {
-                statdisplay.getChildren().add(0, statName);
-                refreshEntStat();
-                refreshCharStat();
-                entAttackScene(currentEnt);
-            });
-            pause.play();
-        }
-    }
-
-    public void defenseScene(Runnable onEnemyDefeated) {
-        displayPane.getChildren().clear();
-        buttonsButton.getChildren().clear();
-
-        Random rand = new Random();
-        entity currentEnt = arrEnt.get(count());
-
-        int angka1 = rand.nextInt(50);
-        int angka2 = rand.nextInt(50);
-        int answerGuess = angka1 + angka2;
-
-        VBox answerDisplay = new VBox();
-        answerDisplay.setStyle("-fx-background-color: #D9D9D9");
-        answerDisplay.setPadding(new Insets(30, 10, 30, 10));
-        answerDisplay.setAlignment(Pos.CENTER);
-        answerDisplay.setMinSize(480, 200);
-        answerDisplay.setSpacing(5);
-
-        VBox defenseguess = comp.defenseGuess(angka1, angka2);
-        Button answerBut = comp.row2("ANSWER");
-        answerDisplay.getChildren().addAll(defenseguess, answerBut);
-        displayPane.getChildren().addAll(answerDisplay);
-
-        answerBut.setOnMouseClicked(e -> {
-            String input = comp.getAnswer();
-            if (input != null && !input.trim().isEmpty()) {
-                int answer = Integer.parseInt(input);
-                if (answer == answerGuess) {
-                    defenseRNG.setVisible(true);
-                    defenseRNG.setText("YOU WIN");
-                    int mainDamage = getDamageChar() + getDamageChange();
-                    currentEnt.setEntHP(currentEnt.getEntHP() - mainDamage);
-
-                    if (currentEnt.getEntHP() <= 0) {
-                        currentEnt.setEntHP(0);
-                        coinWin();
-                        Mainchar.setCharAtkLVL(Mainchar.getCharAtkLVL() + 1);
-                        refreshEntStat();
-
-                        buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
-                        displayPane.getChildren().clear();
-                        displayPane.getChildren().addAll(display, winOrLose);
-
-                        if (onEnemyDefeated != null) {
-                            pause.setOnFinished(e2 -> onEnemyDefeated.run());
-                            pause.play();
-                        }
-                    } else {
-                        refreshEntStat();
-                        refreshCharStat();
-                        pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
-                        pause.play();
-
-                        entSkillScene(currentEnt);
-                        buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
-                        displayPane.getChildren().clear();
-                        displayPane.getChildren().addAll(display, winOrLose);
-                    }
-                } else {
-                    defenseRNG.setVisible(true);
-                    defenseRNG.setText("YOU LOSE");
-                    setEnemyAttack(true);
-                    refreshCharStat();
-
-                    pause.setOnFinished(e2 -> {
-                        defenseRNG.setVisible(false);
-                        entAttackScene(currentEnt);
-                    });
-                    pause.play();
-
-                    entSkillScene(currentEnt);
-                    buttonsButton.getChildren().addAll(buttonsRow1, buttonsRow2);
-                    displayPane.getChildren().clear();
-                    displayPane.getChildren().addAll(display, winOrLose);
-                }
-            } else {
-                defenseRNG.setVisible(true);
-                defenseRNG.setText("Please enter a number!");
-                pause.setOnFinished(e2 -> defenseRNG.setVisible(false));
-                pause.play();
-            }
-        });
-    }
     public void playerDefeat(Scene menuScene, Parent menuRoot, HBox DisplayRoot) {
         if (Mainchar.getCharHP() <= 0) {
             Mainchar.setCharHP(0);
@@ -482,7 +351,6 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             DisplayRoot.getChildren().clear();
             DisplayRoot.setAlignment(Pos.CENTER);
             DisplayRoot.getChildren().add(defeatLabel);
-
             buttonsButton.setVisible(false);
 
             PauseTransition defeatPause = new PauseTransition(Duration.seconds(2));
@@ -493,15 +361,31 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
                 arrEnt.get(Mainchar.getEnemyCount()).setEntHP(
                         new bossEntityList().bossList().get(Mainchar.getEnemyCount()).getEntHP()
                 );
-
                 menuScene.setRoot(menuRoot);
             });
             defeatPause.play();
         }
     }
 
-    public void alertWeapon(){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setHeaderText(null);
+    @Override
+    public void refreshCharStat() {
+        statName.setText(Mainchar.getName());
+        statHP.setText("HP: " + Mainchar.getCharHP());
+        statATK.setText("WEAPON: " + weaponType());
+        statCoin.setText("Coin: " + Mainchar.getCharCoin());
+    }
+
+    @Override
+    public void refreshEntStat() {
+        entity currentEnt = arrEnt.get(count());
+        nameEnt.setText(currentEnt.getEntName());
+        statEntHP.setText("Enemy HP : " + currentEnt.getEntHP());
+        statEntATK.setText("Enemy ATK: " + arrEnt.get(count()).getEntAtk());
+    }
+
+    public void alertWeapon() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
         alert.setContentText("SELECT WEAPON FIRST");
         alert.getDialogPane().getStylesheets().add(
                 getClass().getResource("/font/styles.css").toExternalForm()
@@ -509,31 +393,17 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
         alert.showAndWait();
     }
 
-    public String weaponType(){
+    public String weaponType() {
         weaponReader wr = new weaponReader(Mainchar);
-        if(wr.thereIsWeaponOnMyFileBLyat001niggaanjingmemek()){
+        if (wr.thereIsWeaponOnMyFileBLyat001niggaanjingmemek()) {
             return wr.getListWeapon(getDamageChar());
         }
         return "ERROR";
     }
 
-    @Override
-    public int getDamageChange() {
-        return damagePotion;
-    }
-
-    @Override
-    public void setDamageChange(int b) {
-        this.damagePotion = b;
-    }
-
-    @Override
-    public int getDamageChar() {
-        return damageChar;
-    }
-
-    @Override
-    public void setDamageChar(int b) {
-        this.damageChar = b;
-    }
+    // ── Interface implementations ────────────────────────────────────────────
+    @Override public int  getDamageChange()      { return damagePotion; }
+    @Override public void setDamageChange(int b) { this.damagePotion = b; }
+    @Override public int  getDamageChar()        { return damageChar; }
+    @Override public void setDamageChar(int b)   { this.damageChar = b; }
 }
