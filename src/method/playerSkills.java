@@ -3,10 +3,6 @@ package method;
 import model.player;
 import model.entity;
 
-/**
- * Mengelola daftar skill pemain, dikategorikan dan dipisahkan dalam file tersendiri
- * (mirip dengan bossSkills untuk boss).
- */
 public class playerSkills {
 
     public playerSkills() {
