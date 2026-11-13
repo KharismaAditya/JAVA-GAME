@@ -384,13 +384,7 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
     }
 
     public void alertWeapon() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText("SELECT WEAPON FIRST");
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-        alert.showAndWait();
+        method.GamePopup.showMessage("WEAPON REQUIRED", "SELECT WEAPON FIRST");
     }
 
     public String weaponType() {

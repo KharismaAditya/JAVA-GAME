@@ -1,11 +1,18 @@
 package ui.battleGRIND;
 
+import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import model.entity;
 import method.potionDamageChangeTemp;
 import method.CharDamageMain;
@@ -15,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Menangani mekanisme DEFENSE (mini-game tebak angka) pada dungeon grind battle.
- * Dipisahkan dari dunGrinDisplay agar tanggung jawab lebih jelas.
+ * Menangani mekanisme DEFENSE (mini-game matematika) pada dungeon grind battle
+ * dengan timer countdown 3 detik sebelum soal matematika muncul.
  */
 public class DefenseHandler {
 
@@ -36,7 +43,7 @@ public class DefenseHandler {
     }
 
     /**
-     * Tampilkan layar defense (mini-game penjumlahan).
+     * Tampilkan layar defense dengan countdown timer 3 detik sebelum soal muncul.
      * Dipanggil dari dunGrinDisplay saat tombol DEFENSE diklik.
      *
      * @param arrEnt list semua entity dungeon
@@ -49,38 +56,72 @@ public class DefenseHandler {
             return;
         }
 
-        // Sembunyikan tampilan utama, tampilkan soal
+        // Sembunyikan tampilan utama
         display.displayPane.getChildren().clear();
         display.buttonsButton.getChildren().clear();
 
-        Random rand   = new Random();
-        int angka1    = rand.nextInt(50);
-        int angka2    = rand.nextInt(50);
-        int jawaban   = angka1 + angka2;
+        // 1. Tampilkan countdown timer 3 detik persiapan
+        Label countdownLabel = new Label("3");
+        VBox countdownBox = comp.countdownDisplay(countdownLabel);
+        display.displayPane.getChildren().add(countdownBox);
 
-        VBox answerDisplay = buildAnswerDisplay(angka1, angka2);
-        Button answerBut   = comp.row2("ANSWER");
+        final int[] secondsLeft = {3};
+        Timeline countdownTimeline = new Timeline();
+        KeyFrame kf = new KeyFrame(Duration.seconds(1), event -> {
+            secondsLeft[0]--;
+            if (secondsLeft[0] > 0) {
+                countdownLabel.setText(String.valueOf(secondsLeft[0]));
+            } else {
+                countdownTimeline.stop();
+                // 2. Timer 3 detik selesai: soal matematika muncul
+                showMathQuestion(arrEnt, pause);
+            }
+        });
+
+        countdownTimeline.getKeyFrames().add(kf);
+        countdownTimeline.setCycleCount(3);
+        countdownTimeline.play();
+    }
+
+    // -----------------------------------------------------------------------
+    //  Tampilan & Logika Soal Matematika
+    // -----------------------------------------------------------------------
+
+    private void showMathQuestion(ArrayList<entity> arrEnt, PauseTransition pause) {
+        display.displayPane.getChildren().clear();
+
+        Random rand = new Random();
+        int angka1 = rand.nextInt(50);
+        int angka2 = rand.nextInt(50);
+        int jawaban = angka1 + angka2;
+
+        TextField playerAnswer = new TextField();
+        VBox answerDisplay = buildAnswerDisplay(angka1, angka2, playerAnswer);
+        Button answerBut = comp.row2("ANSWER");
         answerDisplay.getChildren().add(answerBut);
 
         display.displayPane.getChildren().add(answerDisplay);
 
-        answerBut.setOnMouseClicked(e ->
-                onAnswerSubmitted(arrEnt, pause, jawaban)
-        );
+        Runnable submitAction = () -> onAnswerSubmitted(arrEnt, pause, jawaban);
+
+        answerBut.setOnMouseClicked(e -> submitAction.run());
+        playerAnswer.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                submitAction.run();
+            }
+        });
+
+        Platform.runLater(playerAnswer::requestFocus);
     }
 
-    // -----------------------------------------------------------------------
-    //  Private helpers
-    // -----------------------------------------------------------------------
-
-    private VBox buildAnswerDisplay(int angka1, int angka2) {
+    private VBox buildAnswerDisplay(int angka1, int angka2, TextField playerAnswer) {
         VBox box = new VBox();
         box.setStyle("-fx-background-color: #D9D9D9");
         box.setPadding(new Insets(30, 10, 30, 10));
         box.setAlignment(Pos.CENTER);
         box.setMinSize(480, 200);
         box.setSpacing(5);
-        box.getChildren().add(comp.defenseGuess(angka1, angka2));
+        box.getChildren().add(comp.defenseGuess(angka1, angka2, playerAnswer));
         return box;
     }
 
@@ -99,7 +140,17 @@ public class DefenseHandler {
             return;
         }
 
-        int answer = Integer.parseInt(input.trim());
+        int answer;
+        try {
+            answer = Integer.parseInt(input.trim());
+        } catch (NumberFormatException e) {
+            display.defenseRNG.setText("Invalid number!");
+            display.defenseRNG.setVisible(true);
+            pause.setOnFinished(e2 -> display.defenseRNG.setVisible(false));
+            pause.play();
+            restoreMainView();
+            return;
+        }
 
         if (answer == jawaban) {
             onCorrectAnswer(arrEnt, pause);
@@ -158,12 +209,6 @@ public class DefenseHandler {
     }
 
     private void alertWeapon() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText("SELECT WEAPON FIRST");
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-        alert.showAndWait();
+        method.GamePopup.showMessage("WEAPON REQUIRED", "SELECT WEAPON FIRST");
     }
 }

@@ -1,18 +1,18 @@
 package ui.shop;
 
-import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ScrollPane;
-import method.*;
-import model.*;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.scene.control.Button;
+import method.ActivePane;
+import method.GamePopup;
+import method.Refreshable;
+import method.potionDamageChangeTemp;
+import model.player;
 
 import java.util.List;
 
@@ -20,10 +20,10 @@ public class shopDisplay {
     private boolean potionActive = false;
     private int attackCount = 0;
 
-    shopComp comp = new shopComp();
-    Refreshable refresh;
-    ActivePane activePane;
-    potionDamageChangeTemp temp;
+    private final shopComp comp = new shopComp();
+    private final Refreshable refresh;
+    private final ActivePane activePane;
+    private final potionDamageChangeTemp temp;
 
     public shopDisplay(Refreshable refresh, ActivePane activePane, potionDamageChangeTemp temp) {
         this.activePane = activePane;
@@ -31,9 +31,7 @@ public class shopDisplay {
         this.temp = temp;
     }
 
-
     public VBox SHOP(player mainchar, Scene mainscene, Parent mainroot) {
-        Stage stage = new Stage();
         VBox root = new VBox();
         root.setStyle("-fx-background-color: #FFFFFF;");
         root.setMinSize(520, 360);
@@ -49,9 +47,10 @@ public class shopDisplay {
         ItemLoader loader = new ItemLoader(temp, refresh);
         List<ShopItem> items = loader.loadItems();
 
-        HBox shopItemContainer = new HBox(43);
+        // Menggunakan spacing dan padding yang seragam dengan skills
+        HBox shopItemContainer = new HBox(25);
         shopItemContainer.setAlignment(Pos.CENTER_LEFT);
-        shopItemContainer.setPadding(new Insets(16, 44, 16, 44));
+        shopItemContainer.setPadding(new Insets(16, 25, 16, 25));
 
         for (ShopItem item : items) {
             VBox itemBox = buildItemBox(item, mainchar);
@@ -88,57 +87,71 @@ public class shopDisplay {
             activePane.setActivePane(false);
         });
 
-        root.getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
+        try {
+            root.getStylesheets().add(getClass().getResource("/font/styles.css").toExternalForm());
+        } catch (Exception ignored) {}
 
-        stage.setOnCloseRequest(event -> {
-            event.consume();
-            System.out.println("Close button disabled!");
-        });
-
-        stage.setResizable(false);
         return root;
     }
 
-
-
     private VBox buildItemBox(ShopItem item, player mainchar) {
-        VBox itemLabel = comp.labelItem(item.getName());
-        Button buyBtn  = comp.buyButton();
+        String category = getItemCategory(item);
+        VBox card = comp.itemCard(category, item.getName(), item.getPrice());
+        Button buyBtn = comp.buyButton();
 
-        buyBtn.setOnMouseClicked(e -> handlePurchase(item, mainchar));
+        buyBtn.setOnAction(e -> {
+            // Tampilkan UI pop-up konfirmasi pembelian item dengan info stat & harga
+            GamePopup.showItemPurchaseConfirmation(
+                    category,
+                    item.getName(),
+                    item.getPrice(),
+                    item.getEffectDescription(),
+                    mainchar.getCharCoin(),
+                    () -> handlePurchase(item, mainchar)
+            );
+        });
 
-        VBox box = new VBox(10);
+        VBox box = new VBox(8);
         box.setAlignment(Pos.CENTER);
-        box.getChildren().addAll(itemLabel, buyBtn);
+        box.getChildren().addAll(card, buyBtn);
         return box;
+    }
+
+    private String getItemCategory(ShopItem item) {
+        String id = item.getId().toLowerCase();
+        String desc = item.getEffectDescription().toLowerCase();
+        if (id.contains("potion") || desc.contains("damage")) {
+            return "BUFF POTION";
+        } else if (desc.contains("hp") || id.contains("bread") || id.contains("steak") || id.contains("katsu")) {
+            return "RECOVERY FOOD";
+        }
+        return "ITEM";
     }
 
     private void handlePurchase(ShopItem item, player mainchar) {
         if (mainchar.getCharCoin() < item.getPrice()) {
-            alert();
+            GamePopup.showMessage("INSUFFICIENT COINS", "NOT ENOUGH COINS!\nNeed: " + item.getPrice() + " Coins\nYou have: " + mainchar.getCharCoin() + " Coins");
             return;
         }
 
         item.getEffect().apply(mainchar);
-
         mainchar.setCharCoin(mainchar.getCharCoin() - item.getPrice());
 
-        if ("damage_boost".equals(item.getEffect())) {
+        if (item.getId().contains("magic_potion") || item.getEffectDescription().toLowerCase().contains("damage")) {
             if (!potionActive) {
                 potionActive = true;
                 attackCount  = 0;
             }
         }
 
-        confirm(item.getName(), item.getPrice(), item.getEffectDescription());
         refresh.refreshCharStat();
+        GamePopup.showMessage("PURCHASE SUCCESSFUL", "Bought " + item.getName() + " for " + item.getPrice() + " Coins!\n" + item.getEffectDescription());
     }
 
     public boolean isPotionActive() {
         return potionActive;
     }
+
     public void increaseAttackCount(int mainDamage) {
         if (!potionActive) return;
 
@@ -148,28 +161,5 @@ public class shopDisplay {
             temp.setDamageChange(0);
             refresh.refreshCharStat();
         }
-    }
-
-    private void alert() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText("NOT ENOUGH COINS");
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-        alert.showAndWait();
-    }
-
-    private void confirm(String item, int price, String effectExplanation) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText(
-                "BUYING " + item + " FOR " + price + " COIN\n" +
-                        "EFFECT : " + effectExplanation
-        );
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-        alert.showAndWait();
     }
 }

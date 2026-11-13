@@ -4,22 +4,21 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import method.ActivePane;
 import method.CharDamageMain;
+import method.GamePopup;
 import method.Refreshable;
 import model.player;
 
 public class weaponDisplay {
-    weaponComp comp = new weaponComp();
-    Refreshable refresh;
-    ActivePane activePane;
-    CharDamageMain charDamage;
+    private final weaponComp comp = new weaponComp();
+    private final Refreshable refresh;
+    private final ActivePane activePane;
+    private final CharDamageMain charDamage;
 
     private static final String[] WEAPON_NAMES = {
             "DULL BLADE",
@@ -38,7 +37,6 @@ public class weaponDisplay {
     public VBox WEAPON(player mainchar, Scene mainscene, Parent mainroot) {
         weaponReader wr = new weaponReader(mainchar);
 
-        Stage stage = new Stage();
         VBox root = new VBox();
         root.setStyle("-fx-background-color: #FFFFFF;");
         root.setMinSize(520, 360);
@@ -56,21 +54,36 @@ public class weaponDisplay {
         });
         upsection.getChildren().add(exit);
 
-        HBox weaponContainer = new HBox(43);
+        // Container weapon card dengan layout yang seragam dengan skills & shop
+        HBox weaponContainer = new HBox(25);
         weaponContainer.setAlignment(Pos.CENTER_LEFT);
-        weaponContainer.setPadding(new Insets(16, 44, 16, 44));
+        weaponContainer.setPadding(new Insets(16, 25, 16, 25));
 
         for (int i = 0; i < WEAPON_NAMES.length; i++) {
             if (mainchar.getCharAtkLVL() >= i) {
-                Button useButton = comp.equipButton();
-                VBox labelItem = comp.labelItem(WEAPON_NAMES[i]);
+                final int weaponIndex = i + 1;
+                String weaponName = WEAPON_NAMES[i];
+                int damage = wr.getDamageChange(weaponIndex);
+                String tier = "TIER " + (i + 1);
 
-                VBox weaponBox = new VBox(10);
+                VBox card = comp.weaponCard(tier, weaponName, damage);
+                Button equipBtn = comp.equipButton();
+
+                equipBtn.setOnAction(e -> {
+                    // Tampilkan Pop-up konfirmasi equip weapon
+                    GamePopup.showWeaponConfirmation(tier, weaponName, damage, () -> {
+                        charDamage.setDamageChar(damage);
+                        refresh.refreshCharStat();
+                        GamePopup.showMessage("WEAPON EQUIPPED", "Equipped " + weaponName + "!\nAttack Power: +" + damage);
+                        mainscene.setRoot(mainroot);
+                        activePane.setActivePane(false);
+                    });
+                });
+
+                VBox weaponBox = new VBox(8);
                 weaponBox.setAlignment(Pos.CENTER);
-                weaponBox.getChildren().addAll(labelItem, useButton);
+                weaponBox.getChildren().addAll(card, equipBtn);
                 weaponContainer.getChildren().add(weaponBox);
-
-                setupWeaponButton(useButton, i + 1, wr, mainscene, mainroot);
             }
         }
 
@@ -92,46 +105,21 @@ public class weaponDisplay {
             event.consume();
         });
 
-        scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
-            scrollPane.setVvalue(0);
-        });
+        scrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> scrollPane.setVvalue(0));
 
         // --- Down Section ---
         HBox downSection = new HBox();
         downSection.setMinSize(520, 50);
 
         root.getChildren().addAll(upsection, scrollPane, downSection);
-        root.getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-
-        stage.setOnCloseRequest(event -> {
-            event.consume();
-            System.out.println("Close button disabled!");
-        });
-        stage.setResizable(false);
+        try {
+            root.getStylesheets().add(getClass().getResource("/font/styles.css").toExternalForm());
+        } catch (Exception ignored) {}
 
         return root;
     }
 
-    private void setupWeaponButton(Button button, int index, weaponReader wr,
-                                   Scene mainscene, Parent mainroot) {
-        button.setOnMouseClicked(e -> {
-            charDamage.setDamageChar(wr.getDamageChange(index));
-            alert(wr.getName(index));
-            refresh.refreshCharStat();
-            mainscene.setRoot(mainroot);
-            activePane.setActivePane(false);
-        });
-    }
-
     public void alert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText("USING " + message);
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/font/styles.css").toExternalForm()
-        );
-        alert.showAndWait();
+        GamePopup.showMessage("WEAPON EQUIPPED", "USING " + message);
     }
 }

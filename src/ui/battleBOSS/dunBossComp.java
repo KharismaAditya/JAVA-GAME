@@ -7,7 +7,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 
-
 public class dunBossComp {
     private String answer;
 
@@ -33,20 +32,47 @@ public class dunBossComp {
         return btn;
     }
 
-    public VBox defenseGuess(int n1, int n2){
+    public VBox countdownDisplay(Label countdownLabel) {
+        VBox box = new VBox();
+        box.setStyle("-fx-background-color: #D9D9D9;");
+        box.setMinSize(480, 200);
+        box.setSpacing(12);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(20, 20, 20, 20));
+
+        Label title = new Label("DEFENSE ACTIVATED!");
+        title.setStyle("-fx-font-size: 11px; -fx-text-fill: #111111; -fx-font-weight: bold;");
+
+        Label subtitle = new Label("Math question appears in:");
+        subtitle.setStyle("-fx-font-size: 8px; -fx-text-fill: #444444;");
+
+        countdownLabel.setStyle("-fx-font-size: 26px; -fx-text-fill: #D32F2F; -fx-font-weight: bold;");
+
+        box.getChildren().addAll(title, subtitle, countdownLabel);
+        return box;
+    }
+
+    public VBox defenseGuess(int n1, int n2) {
+        TextField playerAnswer = new TextField();
+        return defenseGuess(n1, n2, playerAnswer);
+    }
+
+    public VBox defenseGuess(int n1, int n2, TextField playerAnswer) {
         VBox box = new VBox();
         box.setStyle("-fx-background-color: #D9D9D9;");
         box.setMinSize(480, 120);
-        box.setSpacing(10); box.setAlignment(Pos.CENTER);
+        box.setSpacing(10);
+        box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(0, 40, 0, 40));
 
-        Label guess = new Label(n1 +" + " +n2); guess.setAlignment(Pos.CENTER);
-        guess.setMinSize(120, 20);
-        guess.setStyle("-fx-font-size: 12; -fx-background-color: white; -fx-text-fill: black;");
+        Label guess = new Label(n1 + " + " + n2 + " = ?");
+        guess.setAlignment(Pos.CENTER);
+        guess.setMinSize(160, 25);
+        guess.setStyle("-fx-font-size: 13px; -fx-background-color: white; -fx-text-fill: black; -fx-padding: 4px;");
 
-        TextField playerAnswer = new TextField(); playerAnswer.setAlignment(Pos.CENTER);
-        playerAnswer.setStyle("-fx-font-size: 12; -fx-text-fill: black; -fx-background-color: white;");
-        playerAnswer.setPromptText("your answer");
+        playerAnswer.setAlignment(Pos.CENTER);
+        playerAnswer.setStyle("-fx-font-size: 12px; -fx-text-fill: black; -fx-background-color: white;");
+        playerAnswer.setPromptText("Enter your answer...");
 
         playerAnswer.textProperty().addListener((obs, oldText, newText) -> {
             setAnswer(newText);

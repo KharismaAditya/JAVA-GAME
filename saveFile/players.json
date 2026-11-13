@@ -15,9 +15,9 @@
   },
   {
     "name": "ADVANCE",
-    "CharHP": 1300,
+    "CharHP": 1200,
     "CharAtkLVL": 2,
-    "CharCoin": 332,
+    "CharCoin": 212,
     "enemyCount": 3
   },
   {
