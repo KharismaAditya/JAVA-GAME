@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -20,6 +21,9 @@ public class skillsDisplay {
     private final ActivePane activePane;
     private final skillsComp comp = new skillsComp();
     private final playerSkills skillsLogic = new playerSkills();
+
+    Label statCoin;
+    Label statHP;
 
     public skillsDisplay(Refreshable refresh, ActivePane activePane) {
         this.refresh = refresh;
@@ -97,6 +101,12 @@ public class skillsDisplay {
 
         HBox downSection = new HBox();
         downSection.setMinSize(520, 50);
+        downSection.setAlignment(Pos.CENTER);
+        downSection.setSpacing(10);
+
+        statHP = new Label("HP: " + mainChar.getCharHP());
+        statCoin = new Label("Coin: " + mainChar.getCharCoin());
+        downSection.getChildren().addAll(statHP,statCoin);
         root.getChildren().addAll(upsection, scrollPane, downSection);
 
         exit.setOnMouseClicked(e -> {
@@ -122,6 +132,7 @@ public class skillsDisplay {
         if (success) {
             refresh.refreshCharStat();
             refresh.refreshEntStat();
+            statHP.setText("HP: " + mainChar.getCharHP()); statCoin.setText("Coin: " + mainChar.getCharCoin() );
             GamePopup.showMessage("SKILL ACTIVATED!", skillsLogic.getSkillName(skillId) + " was used successfully!");
         }
     }

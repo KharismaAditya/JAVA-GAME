@@ -69,7 +69,7 @@ public class AttackHandler {
         display.statEntHP.setText("ENEMY DEFEAT");
         display.statEntATK.setText("...");
 
-        display.setCurrent(display.randomEnt(4));
+        display.setCurrent(display.randomDifferentEnt(arrEnt.size()));
         entity newEnt = arrEnt.get(display.getCurrent());
         display.setTempHP(newEnt.getEntHP());
         display.coinWin();

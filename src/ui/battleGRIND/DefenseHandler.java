@@ -43,7 +43,7 @@ public class DefenseHandler {
     }
 
     /**
-     * Tampilkan layar defense dengan countdown timer 3 detik sebelum soal muncul.
+     * Tampilkan layar defense (soal matematika langsung tanpa countdown).
      * Dipanggil dari dunGrinDisplay saat tombol DEFENSE diklik.
      *
      * @param arrEnt list semua entity dungeon
@@ -60,27 +60,8 @@ public class DefenseHandler {
         display.displayPane.getChildren().clear();
         display.buttonsButton.getChildren().clear();
 
-        // 1. Tampilkan countdown timer 3 detik persiapan
-        Label countdownLabel = new Label("3");
-        VBox countdownBox = comp.countdownDisplay(countdownLabel);
-        display.displayPane.getChildren().add(countdownBox);
-
-        final int[] secondsLeft = {3};
-        Timeline countdownTimeline = new Timeline();
-        KeyFrame kf = new KeyFrame(Duration.seconds(1), event -> {
-            secondsLeft[0]--;
-            if (secondsLeft[0] > 0) {
-                countdownLabel.setText(String.valueOf(secondsLeft[0]));
-            } else {
-                countdownTimeline.stop();
-                // 2. Timer 3 detik selesai: soal matematika muncul
-                showMathQuestion(arrEnt, pause);
-            }
-        });
-
-        countdownTimeline.getKeyFrames().add(kf);
-        countdownTimeline.setCycleCount(3);
-        countdownTimeline.play();
+        // Langsung tampilkan soal matematika
+        showMathQuestion(arrEnt, pause);
     }
 
     // -----------------------------------------------------------------------
@@ -95,14 +76,40 @@ public class DefenseHandler {
         int angka2 = rand.nextInt(50);
         int jawaban = angka1 + angka2;
 
+        // shortcut: timer batas waktu 15 detik untuk dungeon grind, upgrade jika ada custom per-mob timer
+        int totalSeconds = 15;
+        int[] timeLeft = {totalSeconds};
+        boolean[] submitted = {false};
+
+        Label timerLabel = new Label("TIME LEFT: " + timeLeft[0] + "s");
+        timerLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #D32F2F; -fx-font-weight: bold;");
+
         TextField playerAnswer = new TextField();
-        VBox answerDisplay = buildAnswerDisplay(angka1, angka2, playerAnswer);
+        VBox answerDisplay = buildAnswerDisplay(angka1, angka2, playerAnswer, timerLabel);
         Button answerBut = comp.row2("ANSWER");
         answerDisplay.getChildren().add(answerBut);
 
         display.displayPane.getChildren().add(answerDisplay);
 
-        Runnable submitAction = () -> onAnswerSubmitted(arrEnt, pause, jawaban);
+        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            timeLeft[0]--;
+            timerLabel.setText("TIME LEFT: " + timeLeft[0] + "s");
+        }));
+        timer.setCycleCount(totalSeconds);
+        timer.setOnFinished(e -> {
+            if (submitted[0]) return;
+            submitted[0] = true;
+            onTimeOut(pause);
+        });
+        timer.play();
+
+        Runnable submitAction = () -> {
+            if (submitted[0]) return;
+            if (onAnswerSubmitted(arrEnt, pause, jawaban)) {
+                submitted[0] = true;
+                timer.stop();
+            }
+        };
 
         answerBut.setOnMouseClicked(e -> submitAction.run());
         playerAnswer.setOnKeyPressed(e -> {
@@ -114,20 +121,22 @@ public class DefenseHandler {
         Platform.runLater(playerAnswer::requestFocus);
     }
 
-    private VBox buildAnswerDisplay(int angka1, int angka2, TextField playerAnswer) {
+    private VBox buildAnswerDisplay(int angka1, int angka2, TextField playerAnswer, Label timerLabel) {
         VBox box = new VBox();
         box.setStyle("-fx-background-color: #D9D9D9");
-        box.setPadding(new Insets(30, 10, 30, 10));
+        box.setPadding(new Insets(10, 10, 10, 10));
         box.setAlignment(Pos.CENTER);
         box.setMinSize(480, 200);
-        box.setSpacing(5);
-        box.getChildren().add(comp.defenseGuess(angka1, angka2, playerAnswer));
+        box.setSpacing(6);
+        VBox guessBox = comp.defenseGuess(angka1, angka2, playerAnswer);
+        guessBox.setMinSize(480, 90);
+        box.getChildren().addAll(timerLabel, guessBox);
         return box;
     }
 
-    private void onAnswerSubmitted(ArrayList<entity> arrEnt,
-                                   PauseTransition pause,
-                                   int jawaban) {
+    private boolean onAnswerSubmitted(ArrayList<entity> arrEnt,
+                                      PauseTransition pause,
+                                      int jawaban) {
         String input = comp.getAnswer();
 
         // Input kosong
@@ -136,8 +145,7 @@ public class DefenseHandler {
             display.defenseRNG.setVisible(true);
             pause.setOnFinished(e2 -> display.defenseRNG.setVisible(false));
             pause.play();
-            restoreMainView();
-            return;
+            return false;
         }
 
         int answer;
@@ -148,8 +156,7 @@ public class DefenseHandler {
             display.defenseRNG.setVisible(true);
             pause.setOnFinished(e2 -> display.defenseRNG.setVisible(false));
             pause.play();
-            restoreMainView();
-            return;
+            return false;
         }
 
         if (answer == jawaban) {
@@ -158,6 +165,17 @@ public class DefenseHandler {
             onWrongAnswer(pause);
         }
 
+        restoreMainView();
+        return true;
+    }
+
+    private void onTimeOut(PauseTransition pause) {
+        display.defenseRNG.setText("TIME'S UP!");
+        display.defenseRNG.setVisible(true);
+        display.setEnemyAttack(true);
+        display.refreshCharStat();
+        pause.setOnFinished(e -> display.defenseRNG.setVisible(false));
+        pause.play();
         restoreMainView();
     }
 
@@ -183,17 +201,25 @@ public class DefenseHandler {
         display.defenseRNG.setVisible(true);
         display.setEnemyAttack(true);
         display.refreshCharStat();
+        pause.setOnFinished(e -> display.defenseRNG.setVisible(false));
         pause.play();
     }
 
     private void onEnemyDefeated(ArrayList<entity> arrEnt, PauseTransition pause) {
-        display.setCurrent(display.randomEnt(4));
+        display.nameEnt.setText("...");
+        display.statEntHP.setText("ENEMY DEFEAT");
+        display.statEntATK.setText("...");
+
+        display.setCurrent(display.randomDifferentEnt(arrEnt.size()));
         entity newEnt = arrEnt.get(display.getCurrent());
         display.setTempHP(newEnt.getEntHP());
         display.coinWin();
 
-        display.refreshEntStat2();
-        display.refreshCharStat();
+        pause.setOnFinished(e -> {
+            display.defenseRNG.setVisible(false);
+            display.refreshEntStat2();
+            display.refreshCharStat();
+        });
         pause.play();
     }
 

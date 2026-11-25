@@ -41,7 +41,7 @@ public class BossDefenseHandler {
     }
 
     /**
-     * Tampilkan layar defense dengan countdown timer 3 detik sebelum soal muncul.
+     * Tampilkan layar defense (soal matematika langsung tanpa countdown).
      *
      * @param arrEnt          list semua boss entity
      * @param pause           PauseTransition bersama dari dungeonBossDisplay
@@ -54,27 +54,7 @@ public class BossDefenseHandler {
         display.displayPane.getChildren().clear();
         display.buttonsButton.getChildren().clear();
 
-        // 1. Tampilkan countdown timer 3 detik persiapan
-        Label countdownLabel = new Label("3");
-        VBox countdownBox = comp.countdownDisplay(countdownLabel);
-        display.displayPane.getChildren().add(countdownBox);
-
-        final int[] secondsLeft = {3};
-        Timeline countdownTimeline = new Timeline();
-        KeyFrame kf = new KeyFrame(Duration.seconds(1), event -> {
-            secondsLeft[0]--;
-            if (secondsLeft[0] > 0) {
-                countdownLabel.setText(String.valueOf(secondsLeft[0]));
-            } else {
-                countdownTimeline.stop();
-                // 2. Timer 3 detik selesai: soal matematika muncul
-                showMathQuestion(arrEnt, pause, onEnemyDefeated);
-            }
-        });
-
-        countdownTimeline.getKeyFrames().add(kf);
-        countdownTimeline.setCycleCount(3);
-        countdownTimeline.play();
+        showMathQuestion(arrEnt, pause, onEnemyDefeated);
     }
 
     // -----------------------------------------------------------------------
@@ -93,13 +73,39 @@ public class BossDefenseHandler {
 
         entity currentEnt = arrEnt.get(display.count());
 
+        // shortcut: countdown linear berbasis detik statis, upgrade jika ada custom game speed atau difficulty setting
+        int totalSeconds = Math.max(4, 16 - (display.count() * 2));
+        int[] timeLeft = {totalSeconds};
+        boolean[] submitted = {false};
+
+        Label timerLabel = new Label("TIME LEFT: " + timeLeft[0] + "s");
+        timerLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #D32F2F; -fx-font-weight: bold;");
+
         TextField playerAnswer = new TextField();
-        VBox answerDisplay = buildAnswerDisplay(angka1, angka2, playerAnswer);
+        VBox answerDisplay = buildAnswerDisplay(angka1, angka2, playerAnswer, timerLabel);
         Button answerBut = comp.row2("ANSWER");
         answerDisplay.getChildren().add(answerBut);
         display.displayPane.getChildren().add(answerDisplay);
 
-        Runnable submitAction = () -> onAnswerSubmitted(currentEnt, pause, jawaban, onEnemyDefeated);
+        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            timeLeft[0]--;
+            timerLabel.setText("TIME LEFT: " + timeLeft[0] + "s");
+        }));
+        timer.setCycleCount(totalSeconds);
+        timer.setOnFinished(e -> {
+            if (submitted[0]) return;
+            submitted[0] = true;
+            onTimeOut(currentEnt, pause);
+        });
+        timer.play();
+
+        Runnable submitAction = () -> {
+            if (submitted[0]) return;
+            if (onAnswerSubmitted(currentEnt, pause, jawaban, onEnemyDefeated)) {
+                submitted[0] = true;
+                timer.stop();
+            }
+        };
 
         answerBut.setOnMouseClicked(e -> submitAction.run());
         playerAnswer.setOnKeyPressed(e -> {
@@ -111,21 +117,23 @@ public class BossDefenseHandler {
         Platform.runLater(playerAnswer::requestFocus);
     }
 
-    private VBox buildAnswerDisplay(int angka1, int angka2, TextField playerAnswer) {
+    private VBox buildAnswerDisplay(int angka1, int angka2, TextField playerAnswer, Label timerLabel) {
         VBox box = new VBox();
         box.setStyle("-fx-background-color: #D9D9D9");
-        box.setPadding(new Insets(30, 10, 30, 10));
+        box.setPadding(new Insets(10, 10, 10, 10));
         box.setAlignment(Pos.CENTER);
         box.setMinSize(480, 200);
-        box.setSpacing(5);
-        box.getChildren().add(comp.defenseGuess(angka1, angka2, playerAnswer));
+        box.setSpacing(6);
+        VBox guessBox = comp.defenseGuess(angka1, angka2, playerAnswer);
+        guessBox.setMinSize(480, 90);
+        box.getChildren().addAll(timerLabel, guessBox);
         return box;
     }
 
-    private void onAnswerSubmitted(entity currentEnt,
-                                   PauseTransition pause,
-                                   int jawaban,
-                                   Runnable onEnemyDefeated) {
+    private boolean onAnswerSubmitted(entity currentEnt,
+                                      PauseTransition pause,
+                                      int jawaban,
+                                      Runnable onEnemyDefeated) {
         String input = comp.getAnswer();
 
         if (input == null || input.trim().isEmpty()) {
@@ -133,7 +141,7 @@ public class BossDefenseHandler {
             display.defenseRNG.setText("Please enter a number!");
             pause.setOnFinished(e2 -> display.defenseRNG.setVisible(false));
             pause.play();
-            return;
+            return false;
         }
 
         int answer;
@@ -144,7 +152,7 @@ public class BossDefenseHandler {
             display.defenseRNG.setText("Invalid number!");
             pause.setOnFinished(e2 -> display.defenseRNG.setVisible(false));
             pause.play();
-            return;
+            return false;
         }
 
         if (answer == jawaban) {
@@ -153,6 +161,23 @@ public class BossDefenseHandler {
             onWrongAnswer(currentEnt, pause);
         }
 
+        restoreMainView();
+        return true;
+    }
+
+    private void onTimeOut(entity currentEnt, PauseTransition pause) {
+        display.defenseRNG.setVisible(true);
+        display.defenseRNG.setText("TIME'S UP!");
+        display.setEnemyAttack(true);
+        display.refreshCharStat();
+
+        pause.setOnFinished(e2 -> {
+            display.defenseRNG.setVisible(false);
+            display.entAttackScene(currentEnt);
+        });
+        pause.play();
+
+        display.entSkillScene(currentEnt);
         restoreMainView();
     }
 

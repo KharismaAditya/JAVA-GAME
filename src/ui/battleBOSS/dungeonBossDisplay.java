@@ -23,6 +23,7 @@ import javafx.scene.control.Button;
 import ui.skills.skillsDisplay;
 import ui.weapon.weaponDisplay;
 import ui.weapon.weaponReader;
+import ui.menu.townhall.townhallDisplay;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -194,7 +195,8 @@ public class dungeonBossDisplay implements Refreshable, ActivePane, potionDamage
             mainroot.getChildren().add(savingFile);
             pause.setOnFinished(e1 -> {
                 save.addPlayer(Mainchar);
-                menuScene.setRoot(menuRoot);
+                townhallDisplay townhall = new townhallDisplay();
+                menuScene.setRoot(townhall.townhall(Mainchar, menuScene, menuRoot));
             });
             pause.play();
         });

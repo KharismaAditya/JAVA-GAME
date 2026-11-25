@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -24,6 +25,9 @@ public class shopDisplay {
     private final Refreshable refresh;
     private final ActivePane activePane;
     private final potionDamageChangeTemp temp;
+
+    Label statHP;
+    Label statCoin;
 
     public shopDisplay(Refreshable refresh, ActivePane activePane, potionDamageChangeTemp temp) {
         this.activePane = activePane;
@@ -79,6 +83,12 @@ public class shopDisplay {
 
         HBox downSection = new HBox();
         downSection.setMinSize(520, 50);
+        downSection.setAlignment(Pos.CENTER);
+        downSection.setSpacing(10);
+        statHP = new Label("HP: " + mainchar.getCharHP());
+        statCoin = new Label("Coin: " + mainchar.getCharCoin());
+        downSection.getChildren().addAll(statHP, statCoin);
+
 
         root.getChildren().addAll(upsection, scrollPane, downSection);
 
@@ -145,6 +155,7 @@ public class shopDisplay {
         }
 
         refresh.refreshCharStat();
+        statHP.setText("HP: " + mainchar.getCharHP());statCoin.setText("Coin: " + mainchar.getCharCoin());
         GamePopup.showMessage("PURCHASE SUCCESSFUL", "Bought " + item.getName() + " for " + item.getPrice() + " Coins!\n" + item.getEffectDescription());
     }
 

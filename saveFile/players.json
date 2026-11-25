@@ -15,14 +15,14 @@
   },
   {
     "name": "ADVANCE",
-    "CharHP": 1200,
+    "CharHP": 1160,
     "CharAtkLVL": 2,
-    "CharCoin": 212,
+    "CharCoin": 580,
     "enemyCount": 3
   },
   {
     "name": "TESJSADJSAHDKJSAD",
-    "CharHP": 100,
+    "CharHP": 80,
     "CharAtkLVL": 5,
     "CharCoin": 530,
     "enemyCount": 1
